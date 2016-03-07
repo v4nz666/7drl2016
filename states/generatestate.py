@@ -141,7 +141,7 @@ class GenerateState(GameState):
 
     self.spawnShroom()
 
-    self.mapElement = Elements.Map(0, 0, config.ui['mapWidth'], config.ui['mapHeight'], self.map)
+    self.mapElement = Elements.Map(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
     self.view.addElement(self.mapElement)
     self.mapElement.center(self.focusX, self.focusY)
     self.removeHandler('gen')

@@ -10,10 +10,7 @@ def randint(max):
 
 ui = {
   'uiWidth': 96,
-  'uiHeight': 60,
-  'mapWidth': 96,
-  'mapHeight': 60,
-
+  'uiHeight': 60
 }
 
 world = {

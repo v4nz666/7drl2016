@@ -14,7 +14,7 @@ from RoguePy.State import GameState
 class PlayState(GameState):
 
   def setupView(self):
-    self.mapElement = uielements.GameMap(0, 0, config.ui['mapWidth'], config.ui['mapHeight'], self.map)
+    self.mapElement = uielements.GameMap(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
 
     self.view.addElement(self.mapElement)
 

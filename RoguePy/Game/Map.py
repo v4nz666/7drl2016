@@ -113,24 +113,45 @@ class Cell:
     self.seen = True
 
 class CellType:
-  def __init__(self, char, fg, bg):
+  def __init__(self, char, fg, bg, opts):
     self.char = char
     self.fg = fg
     self.bg = bg
-    self.passable = False
-    self.transparent = False
+    for opt in opts:
+      setattr(self, opt, opts[opt])
 
-  def setPassable(self, passable):
-    self.passable = passable
-    return self
-
-  def setTransparent(self, transparent):
-    self.transparent = transparent
-    return self
+water = {
+  'passable': False,
+  'transparent': True,
+  'destructible': False,
+}
+grass = {
+  'passable': True,
+  'transparent': True,
+  'destructible': False,
+}
+tree = {
+  'passable': False,
+  'transparent': False,
+  'destructible': True,
+  'leaves': 'grass'
+}
+mountain = {
+  'passable': False,
+  'transparent': False,
+  'destructible': True,
+  'leaves': 'rockFloor'
+}
+rockFloor = {
+  'passable': True,
+  'transparent': True,
+  'destructible': False,
+}
 
 CellType.All = {
-  'water': CellType('~', Colors.dark_blue, Colors.darkest_blue).setPassable(False).setTransparent(True),
-  'grass': CellType(',', Colors.dark_green, Colors.darker_green).setPassable(True).setTransparent(True),
-  'tree': CellType('}', Colors.dark_green, Colors.darkest_green).setPassable(False).setTransparent(False),
-  'mountain': CellType('^', Colors.grey, Colors.darkest_grey).setPassable(False).setTransparent(False)
+  'water': CellType('~', Colors.dark_blue, Colors.darkest_blue, water),
+  'grass': CellType(',', Colors.dark_green, Colors.darker_green, grass),
+  'tree': CellType('}', Colors.dark_green, Colors.darkest_green, tree),
+  'mountain': CellType('^', Colors.grey, Colors.darkest_grey, mountain),
+  'rockFloor': CellType('.', Colors.grey, Colors.darkest_grey, rockFloor)
 }

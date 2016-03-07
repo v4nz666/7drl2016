@@ -41,7 +41,7 @@ class GameMap(Elements.Map):
     for y in range(h):
       for x in range(w):
         c = self.map.getCell(x,y)
-        libtcod.map_set_properties(self.fovMap, x, y, c.terrain.transparent, c.terrain.passable)
+        libtcod.map_set_properties(self.fovMap, x, y, True, c.terrain.passable)
 
   def calculateFovMap(self):
     rad = config.player['viewRadius']
