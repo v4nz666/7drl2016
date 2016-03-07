@@ -23,3 +23,6 @@ world = {
   'mapMax': 1024
 }
 
+player = {
+  'viewRadius': 12
+}

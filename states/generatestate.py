@@ -1,12 +1,12 @@
+__author__ = 'jripley'
+
 import random
-from RoguePy.Game import Map
+from RoguePy.Game import Map, Entity
 from RoguePy.Game.Map import Cell
 from RoguePy.UI import Elements
 from RoguePy.UI import Colors
 import terrains
 
-print terrains.__dict__
-__author__ = 'jripley'
 
 import config
 import sys
@@ -17,12 +17,13 @@ from RoguePy.libtcod import libtcod
 class GenerateState(GameState):
   def init(self):
     self.setupView()
-    self.setupInputs()
 
     self.addHandler('gen', 600, self.generateWorld)
 
     self.focusX = self.view.width/2
     self.focusY = self.view.height/2
+
+    self.setupInputs()
 
   def setupView(self):
     loadingText= "Generating"
@@ -36,6 +37,11 @@ class GenerateState(GameState):
     
     # Inputs. =================================================================================
     self.view.setInputs({
+      'next' : {
+        'key' : Keys.Space,
+        'ch'  : None,
+        'fn'  : self.play
+      },
       'quit' : {
         'key' : Keys.Escape,
         'ch'  : None,
@@ -114,7 +120,7 @@ class GenerateState(GameState):
       else:
         libtcod.heightmap_add_hill(hm, hillX1, hillY1, height, rad)
         libtcod.heightmap_add_hill(hm, hillX2, hillY2, height, rad)
-    libtcod.heightmap_rain_erosion(hm,100000, 0.05, 0.02)
+    libtcod.heightmap_rain_erosion(hm,10000, 0.3, 0.2)
     libtcod.heightmap_normalize(hm, 0.0, 1024.0)
 
     thresholds = [
@@ -133,6 +139,8 @@ class GenerateState(GameState):
     self.map = Map.FromHeightmap(hm, thresholds)
     self.generateTrees()
 
+    self.spawnShroom()
+
     self.mapElement = Elements.Map(0, 0, config.ui['mapWidth'], config.ui['mapHeight'], self.map)
     self.view.addElement(self.mapElement)
     self.mapElement.center(self.focusX, self.focusY)
@@ -141,7 +149,7 @@ class GenerateState(GameState):
   def generateTrees(self):
     caTreeDensity = 0.666
     caNeighboursSpawn = 6
-    caNeighboursStarve = 4 
+    caNeighboursStarve = 4
     caIterations = 3
 
     w = config.world['mapWidth']
@@ -181,6 +189,22 @@ class GenerateState(GameState):
               treeMap[x + y * w] = False
     self.setTrees(treeMap)
 
+  def spawnShroom(self):
+    maxX = config.world['mapWidth'] / 5
+    minX = config.world['mapWidth'] / 2 - maxX / 2
+    maxY = config.world['mapHeight'] / 5
+    minY = config.world['mapHeight'] / 2 - maxY / 2
+
+    x = minX + config.randint(maxX)
+    y = minY + config.randint(maxY)
+
+    if self.map.getCell(x, y).type == 'grass':
+      print "Shroom", x, y
+      self.map.shroom = Entity(self.map, x, y, 'Shroom', '&', Colors.fuchsia)
+    else:
+      self.spawnShroom()
+
+
   def setTrees(self, treeMap):
     for y in range(config.world['mapHeight']):
       for x in range(config.world['mapWidth']):
@@ -202,3 +226,8 @@ class GenerateState(GameState):
           pass
     return t
 
+  def play(self):
+    print "play"
+    self.manager.getState('play')\
+      .setMap(self.map)
+    self.manager.setNextState('play')

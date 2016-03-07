@@ -66,3 +66,6 @@ target/
 
 # RoguePy demo
 RoguePy/Demo
+
+#kernprof
+*.lprof

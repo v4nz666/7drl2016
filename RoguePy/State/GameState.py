@@ -17,6 +17,9 @@ class GameState(object):
     
     self.focused = None
 
+  def init(self):
+    pass
+
   # Clear all existing views, and create one covering the entire ui
   def initView(self, ui):
     self.__views = [View(ui.width, ui.height)]

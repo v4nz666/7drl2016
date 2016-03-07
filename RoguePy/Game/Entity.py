@@ -25,7 +25,7 @@ class Entity:
         dest = self.map.getCell(self.x + dx, self.y + dy)
 
         # Entity check.
-        if dest.entity != None:
+        if dest.entity is not None:
             self.map.trigger('entity_interact', self, dest.entity)
             return False
 
@@ -43,4 +43,4 @@ class Entity:
         return True
 
     def canEnter(self, cell):
-        return cell.type == 'floor'
+        return cell.terrain.passable

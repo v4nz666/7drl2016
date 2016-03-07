@@ -17,6 +17,7 @@ class StateManager():
     self._states[gameState.name] = gameState
     gameState.initView(self.ui)
     return gameState
+
   def getState(self, stateName):
     if stateName in self._states:
       return self._states[stateName]

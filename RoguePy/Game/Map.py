@@ -15,6 +15,7 @@ class Map:
       self.cells = cells
     self.listeners = {}
 
+
   @staticmethod
   def FromFile(path):
     lines = open(path).read().splitlines()
@@ -26,7 +27,7 @@ class Map:
     w = None
     linenum = 0
     for x in lines:
-      if w == None:
+      if w is None:
         w = len(x)
       elif len(x) != w:
         raise Exception("Line(%d) length = %d, expected = %d" % (linenum, len(x), w))
@@ -55,16 +56,10 @@ class Map:
       y = c/w
 
       v = libtcod.heightmap_get_value(hm, x, y)
-      #print "x, y, V", x, y, v
       for t in thresholds:
-#        print t
         if v <= t['range'] * mapMax:
-          # print x, y
-          #print "  v,        range*mapMax,         type"
-          #print "  ", v, t['range']*mapMax, t['type']
           cells.append(Cell(t['type']))
           break
-    print libtcod.heightmap_get_minmax(hm)
     return Map(w, h, cells)
 
   @staticmethod
@@ -96,7 +91,6 @@ class Map:
     eventListeners.append(fn)
 
   def trigger(self, eventName, sender, e):
-    # print "'%s' triggered by %s" % (eventName, sender), "e = ", e
     eventListeners = self.listeners.get(eventName)
     if not eventListeners: return
     for listener in eventListeners:
@@ -108,21 +102,35 @@ class Cell:
     self.setType(type)
     self.entity = None
     self.items = []
+    self.seen = False
     pass
 
   def setType(self, type):
     self.type = type
     self.terrain = CellType.All[type]
 
+  def discover(self):
+    self.seen = True
+
 class CellType:
   def __init__(self, char, fg, bg):
     self.char = char
     self.fg = fg
     self.bg = bg
+    self.passable = False
+    self.transparent = False
+
+  def setPassable(self, passable):
+    self.passable = passable
+    return self
+
+  def setTransparent(self, transparent):
+    self.transparent = transparent
+    return self
 
 CellType.All = {
-  'water': CellType('~', Colors.dark_blue, Colors.darkest_blue),
-  'grass': CellType(',', Colors.darker_green, Colors.dark_green),
-  'tree': CellType('}', Colors.dark_green, Colors.darkest_green),
-  'mountain': CellType('^', Colors.grey, Colors.darkest_grey)
+  'water': CellType('~', Colors.dark_blue, Colors.darkest_blue).setPassable(False).setTransparent(True),
+  'grass': CellType(',', Colors.dark_green, Colors.darker_green).setPassable(True).setTransparent(True),
+  'tree': CellType('}', Colors.dark_green, Colors.darkest_green).setPassable(False).setTransparent(False),
+  'mountain': CellType('^', Colors.grey, Colors.darkest_grey).setPassable(False).setTransparent(False)
 }

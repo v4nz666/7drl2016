@@ -15,6 +15,7 @@ class Game:
         self.stateManager.addState(state)
         state.init()
 
+
     def run(self, stateName):
         self.stateManager.setCurrentState(stateName)
         while not self.ui.is_closed():

@@ -6,9 +6,9 @@ from .. import Colors
 CellView = namedtuple('CellView', ['char', 'fg', 'bg'])
 
 class Map(Element):
-  def __init__(self, x, y, w, h, _map):
+  def __init__(self, x, y, w, h, map):
     super(Map, self).__init__(x, y, w, h)
-    self._map = _map
+    self.map = map
     self._offsetX = 0
     self._offsetY = 0
     self.halfW = self.width / 2
@@ -27,17 +27,17 @@ class Map(Element):
     """
     if x < self.halfW:
       self._offsetX = 0
-    elif x < self._map.width - self.halfW:
+    elif x < self.map.width - self.halfW:
       self._offsetX = x - self.halfW
     else:
-      self._offsetX = self._map.width - self.width
+      self._offsetX = self.map.width - self.width
     
     if y < self.halfH:
       self._offsetY = 0
-    elif y < self._map.height - self.halfH:
+    elif y < self.map.height - self.halfH:
       self._offsetY = y - self.halfH
     else:
-      self._offsetY = self._map.height - self.height
+      self._offsetY = self.map.height - self.height
     self.setDirty()
     return self
 
@@ -57,8 +57,8 @@ class Map(Element):
       for sx in range(self.width):
         x = sx + self._offsetX
         y = sy + self._offsetY
-        if (x >= 0 and x < self._map.width and y >= 0 and y < self._map.height):
-          c = self._map.getCell(x, y)
+        if (x >= 0 and x < self.map.width and y >= 0 and y < self.map.height):
+          c = self.map.getCell(x, y)
           cv = self.cellToView(c)
           libtcod.console_put_char_ex(self.console, sx, sy, cv.char, cv.fg, cv.bg)
 
@@ -66,7 +66,7 @@ class Map(Element):
 
   def cellToView(self, c):
     result = CellView(c.terrain.char, c.terrain.fg, c.terrain.bg)
-    if c.entity != None:
+    if c.entity is not None:
       result = CellView(c.entity.ch, c.entity.fg, result.bg)
     elif c.items:
       pass
