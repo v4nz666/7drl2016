@@ -16,23 +16,26 @@ class Entity:
     def tryMove(self, dx, dy):
         # Rest / skip check.
         if dx == 0 and dy == 0:
-            return True
+          return True
 
         # Adjacency check.
         if abs(dx) >  1 or abs(dy) > 1:
-            return False
+          return False
+
 
         dest = self.map.getCell(self.x + dx, self.y + dy)
 
+        if not dest:
+          return False
+
         # Entity check.
         if dest.entity is not None:
-            self.map.trigger('entity_interact', self, dest.entity)
-            return False
+          self.map.trigger('entity_interact', self, dest.entity)
+          return False
 
         # Terrain check.
         if not self.canEnter(dest):
-            self.map.trigger('entity_collide', self, dest)
-            return False
+          return False
 
         # TODO: This should be a map call because (a) it's ugly, and (b) it makes assumptions about
         #   how map stores entities.
@@ -40,7 +43,16 @@ class Entity:
         self.x += dx
         self.y += dy
         self.map.getCell(self.x, self.y).entity = self
+
+        self.map.trigger('entity_collide', self, dest)
         return True
 
-    def canEnter(self, cell):
-        return cell.terrain.passable
+    def canEnter(self, dest):
+      if dest.passable:
+        src = self.map.getCell(self.x, self.y)
+        if src.moveCost <= 0:
+          src.resetMoveCost()
+          return True
+        else:
+          src.moveCost -= 1
+          return False

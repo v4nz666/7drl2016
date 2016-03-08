@@ -10,13 +10,28 @@ from RoguePy.Input import Keys
 from RoguePy.UI import Elements
 from RoguePy.UI import Colors
 from RoguePy.State import GameState
-
+from RoguePy.libtcod import libtcod
 class PlayState(GameState):
+
+  def init(self):
+    self.setupHandlers()
+
+  def setupHandlers(self):
+    self.addHandler('hudRefresh', 20, self.hudRefresh)
+
+  def hudRefresh(self):
+    self.fps.setLabel("FPS: " + str(libtcod.sys_get_fps()))
+
+
+
 
   def setupView(self):
     self.mapElement = uielements.GameMap(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
-
     self.view.addElement(self.mapElement)
+    self.fps = self.view.addElement(Elements.Label(1, 1, "FPS: ".ljust(8)))\
+      .setDefaultForeground(Colors.magenta)
+    self.fps.bgOpacity = 0
+
 
   def setupInputs(self):
     # Inputs. =================================================================================
@@ -62,3 +77,13 @@ class PlayState(GameState):
     self.mapElement.center(self.player.x, self.player.y)
 
     self.setupInputs()
+    self.setupEvents()
+
+
+  def setupEvents(self):
+    self.map.on('entity_interact', self.entityInteract)
+    self.map.on('entity_collide', self.terrainCollide)
+  def entityInteract(self, src, target):
+    print "interact", target.name
+  def terrainCollide(self, src, dest):
+    print "collide", dest.type

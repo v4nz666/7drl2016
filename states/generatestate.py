@@ -3,7 +3,7 @@ __author__ = 'jripley'
 import random
 from RoguePy.Game import Map, Entity
 from RoguePy.Game.Map import Cell
-from RoguePy.UI import Elements
+from RoguePy.UI import Elements, View
 from RoguePy.UI import Colors
 import terrains
 
@@ -18,7 +18,7 @@ class GenerateState(GameState):
   def init(self):
     self.setupView()
 
-    self.addHandler('gen', 600, self.generateWorld)
+    self.addHandler('gen', 1, self.generateWorld)
 
     self.focusX = self.view.width/2
     self.focusY = self.view.height/2
@@ -29,9 +29,9 @@ class GenerateState(GameState):
     loadingText= "Generating"
     loadingX = (self.view.width - len(loadingText)) / 2
     loadingY = self.view.height / 2 - 3
-    loading = Elements.Label(loadingX, loadingY, loadingText)
-    self.view.addElement(loading)\
+    self.view.addElement(Elements.Label(loadingX, loadingY, loadingText))\
       .setDefaultForeground(Colors.dark_azure)
+
 
   def setupInputs(self):
     
@@ -76,81 +76,71 @@ class GenerateState(GameState):
     self.mapElement.center(self.focusX, self.focusY)
 
   def generateWorld(self):
-    # w = config.world['mapWidth']
-    # h = config.world['mapHeight']
-    w = config.world['mapWidth']
-    h = config.world['mapHeight']
+    while True:
+      w = config.world['mapWidth']
+      h = config.world['mapHeight']
 
-    hm = libtcod.heightmap_new(w, h)
-    rand = config.rand
-    #
-    # iterations = 1024
-    # for i in range(iterations):
-    #   _x = libtcod.random_get_int(rand,0,w)
-    #   _y = libtcod.random_get_int(rand,0,h)
-    #   _r = libtcod.random_get_int(rand,0, (iterations-i)/10)
-    #   _h = libtcod.random_get_int(rand,0, i)
-    #
-    #   if libtcod.random_get_int(rand,0,1):
-    #     libtcod.heightmap_add_hill(hm, _x, _y, _r, _h)
-    #   else:
-    #     libtcod.heightmap_dig_hill(hm, _x, _y, _r, _h)
-    #
-    # mapMax = config.world['mapMax']
-    #
-    # libtcod.heightmap_normalize(hm, 0, mapMax)
-    hills = 4096
-    hillHeight = 15
-    hillRad = 50
-    libtcod.heightmap_clear(hm)
+      hm = libtcod.heightmap_new(w, h)
+      rand = config.rand
 
-    for i in range(hills) :
-      height= config.randint(hillHeight)
-      rad = config.randint(hillRad)
+      hills = 4096
+      hillHeight = 15
+      hillRad = 50
+      libtcod.heightmap_clear(hm)
 
-      hillX1 = config.randint(config.world['mapWidth'])
-      hillY1 = config.randint(config.world['mapHeight'])
+      for i in range(hills) :
+        height= config.randint(hillHeight)
+        rad = config.randint(hillRad)
 
-      hillX2 = config.randint(config.world['mapWidth'])
-      hillY2 = config.randint(config.world['mapHeight'])
+        hillX1 = config.randint(config.world['mapWidth'])
+        hillY1 = config.randint(config.world['mapHeight'])
 
-      if config.randint(10) < 3:
-        libtcod.heightmap_dig_hill(hm, hillX1, hillY1, height, rad)
-        libtcod.heightmap_dig_hill(hm, hillX2, hillY2, height, rad)
-      else:
-        libtcod.heightmap_add_hill(hm, hillX1, hillY1, height, rad)
-        libtcod.heightmap_add_hill(hm, hillX2, hillY2, height, rad)
-    libtcod.heightmap_rain_erosion(hm,10000, 0.3, 0.2)
-    libtcod.heightmap_normalize(hm, 0.0, 1024.0)
+        hillX2 = config.randint(config.world['mapWidth'])
+        hillY2 = config.randint(config.world['mapHeight'])
 
-    thresholds = [
-      {
-        'type': 'water',
-        'range': 0.1
-      },{
-        'type': 'grass',
-        'range': 0.666
-      },{
-        'type': 'mountain',
-        'range': 1.0
-      }
-    ]
+        if config.randint(10) < 3:
+          libtcod.heightmap_dig_hill(hm, hillX1, hillY1, height, rad)
+          libtcod.heightmap_dig_hill(hm, hillX2, hillY2, height, rad)
+        else:
+          libtcod.heightmap_add_hill(hm, hillX1, hillY1, height, rad)
+          libtcod.heightmap_add_hill(hm, hillX2, hillY2, height, rad)
+      libtcod.heightmap_rain_erosion(hm,10000, 0.3, 0.2)
+      libtcod.heightmap_normalize(hm, 0.0, 1024.0)
 
-    self.map = Map.FromHeightmap(hm, thresholds)
-    self.generateTrees()
+      thresholds = [
+        {
+          'type': 'water',
+          'range': 0.1
+        },{
+          'type': 'grass',
+          'range': 0.666
+        },{
+          'type': 'mountain',
+          'range': 1.0
+        }
+      ]
 
-    self.spawnShroom()
+      self.map = Map.FromHeightmap(hm, thresholds)
+      self.generateTrees()
 
-    self.mapElement = Elements.Map(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
-    self.view.addElement(self.mapElement)
-    self.mapElement.center(self.focusX, self.focusY)
-    self.removeHandler('gen')
+      self.spawnShroom()
+      if self.validMap():
+        self.mapElement = Elements.Map(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
+
+        self.view.addElement(self.mapElement)
+        self.mapElement.center(self.focusX, self.focusY)
+
+        self.removeHandler('gen')
+        return True
+
+  def validMap(self):
+    return True
 
   def generateTrees(self):
     caTreeDensity = 0.666
-    caNeighboursSpawn = 6
+    caNeighboursSpawn = 7
     caNeighboursStarve = 4
-    caIterations = 3
+    caIterations = 6
 
     w = config.world['mapWidth']
     h = config.world['mapHeight']
@@ -171,6 +161,7 @@ class GenerateState(GameState):
         treeMap[x + y * w] = True
 
     for i in range(caIterations):
+
       neighbours = [None for _i in range(w + h * w)]
       for y in range(h) :
         for x in range(w) :
@@ -190,9 +181,9 @@ class GenerateState(GameState):
     self.setTrees(treeMap)
 
   def spawnShroom(self):
-    maxX = config.world['mapWidth'] / 5
+    maxX = config.world['mapWidth'] / 6
     minX = config.world['mapWidth'] / 2 - maxX / 2
-    maxY = config.world['mapHeight'] / 5
+    maxY = config.world['mapHeight'] / 6
     minY = config.world['mapHeight'] / 2 - maxY / 2
 
     x = minX + config.randint(maxX)
@@ -209,8 +200,11 @@ class GenerateState(GameState):
     for y in range(config.world['mapHeight']):
       for x in range(config.world['mapWidth']):
         c = self.map.getCell(x,y)
-        if treeMap[x + y * config.world['mapWidth']] and c.type == 'grass':
-          c.setType('tree')
+        try:
+          if treeMap[x + y * config.world['mapWidth']] and c.type == 'grass':
+            c.setType('tree')
+        except AttributeError:
+          print 'Error: ', x, y
 
   @staticmethod
   def countTreeNeighbours(x, y, treeMap) :

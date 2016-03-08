@@ -4,7 +4,6 @@ from RoguePy.UI import Colors
 
 import config
 
-
 class Map:
   def __init__(self, w, h, cells=None):
     self.width = w
@@ -14,7 +13,6 @@ class Map:
     else:
       self.cells = cells
     self.listeners = {}
-
 
   @staticmethod
   def FromFile(path):
@@ -77,7 +75,10 @@ class Map:
     return cell
 
   def getCell(self, x, y):
-    # TODO: Bounds checking.
+    if not (0 <= x and x < self.width) or\
+       not (0 <= y and y < self.height):
+      return False
+
     return self.cells[x + y * self.width]
 
   def setCell(self, x, y, cell):
@@ -108,6 +109,14 @@ class Cell:
   def setType(self, type):
     self.type = type
     self.terrain = CellType.All[type]
+    self.setOpts()
+
+  def setOpts(self):
+    for opt in self.terrain.opts:
+      setattr(self, opt, self.terrain.opts[opt])
+
+  def resetMoveCost(self):
+    self.moveCost = self.terrain.opts['moveCost']
 
   def discover(self):
     self.seen = True
@@ -117,8 +126,7 @@ class CellType:
     self.char = char
     self.fg = fg
     self.bg = bg
-    for opt in opts:
-      setattr(self, opt, opts[opt])
+    self.opts = opts
 
 water = {
   'passable': False,
@@ -129,29 +137,39 @@ grass = {
   'passable': True,
   'transparent': True,
   'destructible': False,
+  'moveCost': 0
 }
 tree = {
-  'passable': False,
-  'transparent': False,
+  'passable': True,
+  'transparent': True,
   'destructible': True,
-  'leaves': 'grass'
+  'leaves': 'grass',
+  'moveCost': 1
 }
 mountain = {
-  'passable': False,
+  'passable': True,
   'transparent': False,
   'destructible': True,
-  'leaves': 'rockFloor'
+  'leaves': 'rockFloor',
+  'moveCost': 2
 }
 rockFloor = {
   'passable': True,
   'transparent': True,
   'destructible': False,
+  'moveCost': 0
+}
+
+cellChars = {
+  'tree': 24,
+  'grass': 25,
+  'mountain': 27
 }
 
 CellType.All = {
   'water': CellType('~', Colors.dark_blue, Colors.darkest_blue, water),
-  'grass': CellType(',', Colors.dark_green, Colors.darker_green, grass),
-  'tree': CellType('}', Colors.dark_green, Colors.darkest_green, tree),
-  'mountain': CellType('^', Colors.grey, Colors.darkest_grey, mountain),
+  'grass': CellType(cellChars['grass'], Colors.white, Colors.darker_green, grass),
+  'tree': CellType(cellChars['tree'], Colors.white, Colors.darker_green, tree),
+  'mountain': CellType(cellChars['mountain'], Colors.white, Colors.darker_green, mountain),
   'rockFloor': CellType('.', Colors.grey, Colors.darkest_grey, rockFloor)
 }

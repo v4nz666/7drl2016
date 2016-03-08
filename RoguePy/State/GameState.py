@@ -27,6 +27,7 @@ class GameState(object):
   # Add a view onto the stack
   def addView(self, view):
     self.__views.append(view)
+    return view
   # Pop a view off the stack
   def removeView(self):
     if not len(self.__views) > 1 :
