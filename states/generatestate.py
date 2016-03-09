@@ -1,3 +1,5 @@
+from entities import Shroom
+
 __author__ = 'jripley'
 
 import random
@@ -190,8 +192,7 @@ class GenerateState(GameState):
     y = minY + config.randint(maxY)
 
     if self.map.getCell(x, y).type == 'grass':
-      print "Shroom", x, y
-      self.map.shroom = Entity(self.map, x, y, 'Shroom', '&', Colors.fuchsia)
+      self.map.shroom = Shroom(self.map, x, y, 'Shroom', 26, Colors.white)
     else:
       self.spawnShroom()
 
@@ -200,11 +201,8 @@ class GenerateState(GameState):
     for y in range(config.world['mapHeight']):
       for x in range(config.world['mapWidth']):
         c = self.map.getCell(x,y)
-        try:
-          if treeMap[x + y * config.world['mapWidth']] and c.type == 'grass':
-            c.setType('tree')
-        except AttributeError:
-          print 'Error: ', x, y
+        if treeMap[x + y * config.world['mapWidth']] and c.type == 'grass':
+          c.setType('tree')
 
   @staticmethod
   def countTreeNeighbours(x, y, treeMap) :
@@ -221,7 +219,6 @@ class GenerateState(GameState):
     return t
 
   def play(self):
-    print "play"
     self.manager.getState('play')\
       .setMap(self.map)
     self.manager.setNextState('play')

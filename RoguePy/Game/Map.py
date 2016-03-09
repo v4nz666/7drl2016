@@ -1,6 +1,7 @@
 from .. import UI
 from RoguePy.libtcod import libtcod
 from RoguePy.UI import Colors
+import chars
 
 import config
 
@@ -69,14 +70,14 @@ class Map:
       '.': Cell('floor'),
       'd': Cell('door'),
       'w': Cell('window'),
-    }.get(ch)
+      }.get(ch)
     if cell == None:
       raise Exception("Unknown cell token [" + ch + "]")
     return cell
 
   def getCell(self, x, y):
-    if not (0 <= x and x < self.width) or\
-       not (0 <= y and y < self.height):
+    if not (0 <= x and x < self.width) or \
+          not (0 <= y and y < self.height):
       return False
 
     return self.cells[x + y * self.width]
@@ -97,12 +98,46 @@ class Map:
     for listener in eventListeners:
       listener(sender, e)
 
+  # Hard coded 1 entity per tile
+  def removeEntity(self, e, x, y):
+    c = self.getCell(x, y)
+    if c.entity == e:
+      c.entity = None
+      return True
+    return False
+  def addEntity(self, e, x, y):
+    c = self.getCell(x, y)
+    if c.entity is None:
+      self.getCell(x, y).entity = e
+      return True
+    return False
+
+
+  def addItem(self, i, x, y):
+    c =  self.getCell(x, y)
+    if not c.passable:
+      return False
+
+    if c.entity is not None:
+      # TODO trigger item_interact
+      return False
+
+    if c.item is None:
+      c.item = i
+      return True
+    return False
+  def removeItem(self, i, x, y):
+    c = self.getCell(x, y)
+    if c.item == i:
+      c.item = None
+      return i
+    return False
 
 class Cell:
   def __init__(self, type):
     self.setType(type)
     self.entity = None
-    self.items = []
+    self.item = None
     self.seen = False
     pass
 
@@ -160,16 +195,11 @@ rockFloor = {
   'moveCost': 0
 }
 
-cellChars = {
-  'tree': 24,
-  'grass': 25,
-  'mountain': 27
-}
 
 CellType.All = {
-  'water': CellType('~', Colors.dark_blue, Colors.darkest_blue, water),
-  'grass': CellType(cellChars['grass'], Colors.white, Colors.darker_green, grass),
-  'tree': CellType(cellChars['tree'], Colors.white, Colors.darker_green, tree),
-  'mountain': CellType(cellChars['mountain'], Colors.white, Colors.darker_green, mountain),
+  'water': CellType(chars.water, Colors.white, Colors.dark_blue, water),
+  'grass': CellType(chars.grass, Colors.white, Colors.darker_green, grass),
+  'tree': CellType(chars.tree, Colors.white, Colors.darker_green, tree),
+  'mountain': CellType(chars.mountain, Colors.white, Colors.darker_green, mountain),
   'rockFloor': CellType('.', Colors.grey, Colors.darkest_grey, rockFloor)
 }

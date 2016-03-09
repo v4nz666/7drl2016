@@ -41,8 +41,7 @@ class UI:
     self.__height = w
   
   def refresh(self, view):
-    # TODO doesnt' seem this is necessary?! I don't think we want to be doing it, if not...
-    #view.clear()
+    view.clear()
     view.renderElements()
     self._blitToRoot(view.getConsole(), view.x, view.y)
     libtcod.console_flush()

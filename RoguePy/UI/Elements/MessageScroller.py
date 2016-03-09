@@ -50,7 +50,7 @@ class MessageScroller(Element):
     y = 0
     for i in self.messages:
       h = i.height
-      if ( h == None ):
+      if ( h is None ):
         raise Exception("%s height not set before MessageScroller.draw() was called!" % i)
       libtcod.console_print_rect(self.console, 0, y, self.width, h, i.getText())
       y += h

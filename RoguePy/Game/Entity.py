@@ -1,10 +1,11 @@
+from RoguePy.libtcod import libtcod
+
 
 class Entity:
-
     def __init__(self, map, x, y, name, ch, fg):
         c = map.getCell(x, y)
         if ( c.entity != None ):
-            raise Exception("Entity already present in map cell (%d,%d)" % (x, y))
+          raise Exception("Entity already present in map cell (%d,%d)" % (x, y))
         c.entity = self
         self.map = map
         self.x = x
@@ -12,6 +13,14 @@ class Entity:
         self.name = name
         self.ch = ch
         self.fg = fg
+        self.inventory = []
+
+    def pickup(self, item):
+
+      self.inventory.append(item)
+    def drop(self, item):
+      if item in self.inventory:
+        self.inventory.remove(item)
 
     def tryMove(self, dx, dy):
         # Rest / skip check.
@@ -22,9 +31,7 @@ class Entity:
         if abs(dx) >  1 or abs(dy) > 1:
           return False
 
-
         dest = self.map.getCell(self.x + dx, self.y + dy)
-
         if not dest:
           return False
 
@@ -39,10 +46,12 @@ class Entity:
 
         # TODO: This should be a map call because (a) it's ugly, and (b) it makes assumptions about
         #   how map stores entities.
-        self.map.getCell(self.x, self.y).entity = None
+
+
+        self.map.removeEntity(self, self.x, self.y)
         self.x += dx
         self.y += dy
-        self.map.getCell(self.x, self.y).entity = self
+        self.map.addEntity(self,self.x, self.y)
 
         self.map.trigger('entity_collide', self, dest)
         return True

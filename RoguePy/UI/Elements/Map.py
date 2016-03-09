@@ -68,8 +68,8 @@ class Map(Element):
     result = CellView(c.terrain.char, c.terrain.fg, c.terrain.bg)
     if c.entity is not None:
       result = CellView(c.entity.ch, c.entity.fg, result.bg)
-    elif c.items:
-      pass
+    elif c.item:
+      result = CellView(c.item.ch, c.item.fg, result.bg)
     return result
 
   # TODO: Does this belong here, or in View? It's a bit hackish because we only want to replace

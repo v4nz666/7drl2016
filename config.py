@@ -5,12 +5,16 @@ from RoguePy.libtcod import libtcod
 ### Random
 seed = 666
 rand = libtcod.random_new_from_seed(seed)
-def randint(max):
-  return libtcod.random_get_int(rand, 0, max)
+def randint(max, min=0):
+  return libtcod.random_get_int(rand, min, max)
 
 ui = {
   'uiWidth': 96,
-  'uiHeight': 60
+  'uiHeight': 60,
+  'msgW': 24,
+  'msgH': 16,
+  'msgX': 96 - 24,
+  'msgY': 60 - 16
 }
 
 world = {
