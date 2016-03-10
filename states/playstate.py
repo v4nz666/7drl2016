@@ -2,7 +2,8 @@ import RoguePy
 from RoguePy.Game.Item import Item
 from buildsite import BuildSite
 import chars
-from entities import Shroom, Node
+from enemies import *
+from entities import Shroom, Node, Enemy
 from entities import Construct
 import items
 import uielements
@@ -274,7 +275,28 @@ class PlayState(GameState):
       self.invFrame.show()
       self.netFrame.show()
 
-    items = self.waves[0].items
+    self.spawnItems(self.waves[0].items)
+    self.spawnEnemies(self.waves[0].enemies)
+
+  def spawnEnemies(self, enemies):
+    for e in range(len(enemies)):
+      enemy = enemies[e]
+      (x, y) = self.findSuitableSpawnPoint()
+      print "Spawing at:", x, y
+      self.map.addEntity(enemy, x, y)
+
+  def findSuitableSpawnPoint(self):
+    y = 0
+    while True:
+      x = cfg.randint(self.map.width-1)
+      c = self.map.getCell(x, y)
+      if not c.passable:
+        continue
+      if c.entity:
+        continue
+      return (x, y)
+
+  def spawnItems(self, items):
     for i in range(len(items)):
       spawned = False
       while not spawned:
@@ -347,9 +369,6 @@ class Wave():
     self.items = items
     self.enemies = enemies
 
-  def __repr__(self):
-    return "Timer: %d\nenemies[%d]" % (self.timer, len(self.enemies))
-
   @staticmethod
   def All():
     return [
@@ -359,7 +378,13 @@ class Wave():
           items.spore,
           items.spore
         ],
-        []  # enemies
+        [
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy)
+        ]  # enemies
       ],[
         100, # timer
         [    # items
