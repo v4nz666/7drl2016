@@ -193,7 +193,9 @@ class GenerateState(GameState):
     y = minY + config.randint(maxY)
 
     if self.map.getCell(x, y).type == 'grass':
-      self.map.shroom = Shroom(self.map, x, y, 'Shroom', chars.shroom, Colors.white)
+      shroom = Shroom('Shroom', chars.shroom, Colors.white)
+      shroom.spawn(self.map, x, y)
+      self.map.shroom = shroom
     else:
       self.spawnShroom()
 

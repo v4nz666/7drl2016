@@ -1,9 +1,10 @@
-from .. import UI
 from RoguePy.libtcod import libtcod
 from RoguePy.UI import Colors
 import chars
 
 import config
+
+
 
 class Map:
   def __init__(self, w, h, cells=None):
@@ -14,6 +15,23 @@ class Map:
     else:
       self.cells = cells
     self.listeners = {}
+
+    self.buildSites = {}
+
+  def addBuildSite(self, x, y, b):
+    if not (x, y) in self.buildSites:
+      self.buildSites[(x, y)] = b
+  def removeBuildSite(self, x, y):
+    if (x,y) in self.buildSites:
+      del self.buildSites[(x,y)]
+
+  def purgeBuildSites(self):
+    rm = []
+    for x, y in self.buildSites:
+      if self.buildSites[x,y].timer <= 0:
+        rm.append((x,y))
+    for x, y in rm:
+      self.removeBuildSite(x, y)
 
   @staticmethod
   def FromFile(path):

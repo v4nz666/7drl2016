@@ -10,9 +10,6 @@ class Shroom(Node):
   def activate(self, player):
     self.active = True
     self.player = player
-
-
-
     self.initNetwork()
 
   def initNetwork(self):

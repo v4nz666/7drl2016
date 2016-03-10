@@ -2,18 +2,17 @@ from RoguePy.libtcod import libtcod
 
 
 class Entity:
-    def __init__(self, map, x, y, name, ch, fg):
-        c = map.getCell(x, y)
-        if ( c.entity != None ):
-          raise Exception("Entity already present in map cell (%d,%d)" % (x, y))
-        c.entity = self
-        self.map = map
-        self.x = x
-        self.y = y
+    def __init__(self, name, ch, fg):
         self.name = name
         self.ch = ch
         self.fg = fg
         self.item = None
+
+    def spawn(self, map, x, y):
+      self.map = map
+      self.x = x
+      self.y = y
+      return map.addEntity(self, x, y)
 
     def pickup(self, item):
       if not self.item:

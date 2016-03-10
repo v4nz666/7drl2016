@@ -1,7 +1,8 @@
 import RoguePy
 from RoguePy.Game.Item import Item
+from buildsite import BuildSite
 import chars
-from entities import Shroom
+from entities import Shroom, Node
 from entities import Construct
 import items
 import uielements
@@ -24,9 +25,9 @@ class PlayState(GameState):
 
   def setupHandlers(self):
 
-    self.addHandler('buildAnim', 12, self.mapElement.updateBuildChar)
+    self.addHandler('buildAnim', 12, self.mapElement.updateBuildAnimation)
     self.addHandler('hudRefresh', 1, self.hudRefresh)
-    self.turnHandlers = []
+    self.turnHandlers = [self.buildSiteUpdate]
 
   def setupView(self):
 
@@ -161,7 +162,7 @@ class PlayState(GameState):
 # Item use callbacks
   def setupItems(self):
     def useSpore(x, y):
-      self.mapElement.addBuildSite(x, y)
+      self.map.addBuildSite(x, y, BuildSite(5, Node("Node", chars.shroom, Colors.white)))
       print "BAM Spore deployed"
     items.spore.use = useSpore
 
@@ -201,7 +202,10 @@ class PlayState(GameState):
         try:
           if self.map.getCell(_x, _y).type == 'grass':
             print "Player: %d, %d" % (_x, _y)
-            return RoguePy.Game.Entity(self.map, _x, _y, 'Sporaculous', '@', Colors.white)
+            player = RoguePy.Game.Entity('Sporaculous', '@', Colors.white)
+            player.spawn(self.map, _x, _y)
+            return player
+
         except IndexError:
           pass
     print "Player not placed!"
@@ -254,24 +258,6 @@ class PlayState(GameState):
     self.initNextWave(first=True)
     self.turnHandlers.append(self.waveUpdate)
 
-  def waveUpdate(self):
-    wave = self.waves[0]
-    if wave.timer > 0:
-      wave.timer -= 1
-      return
-    else:
-      self.activateWave()
-
-    if len(wave.enemies):
-      pass #updateEnemies
-    else:
-      self.messageList.message("wave complete")
-      self.initNextWave()
-
-    if len(self.waves) == 0:
-      self.messageList.message("you win!!!!")
-      self.turnHandlers.remove(self.waveUpdate)
-
   # The enemies have arrived
   def activateWave(self):
     self.waves[0].active = True
@@ -317,10 +303,40 @@ class PlayState(GameState):
     self.netFrame.setDirty()
 
 
+##############################
+# Turn handlers
+
+  # One time only, then remove
+  def waveUpdate(self):
+    wave = self.waves[0]
+    if wave.timer > 0:
+      wave.timer -= 1
+      return
+    else:
+      self.activateWave()
+
+    if len(wave.enemies):
+      pass #updateEnemies
+    else:
+      self.messageList.message("wave complete")
+      self.initNextWave()
+
+    if len(self.waves) == 0:
+      self.messageList.message("you win!!!!")
+      self.turnHandlers.remove(self.waveUpdate)
+
   def collectMana(self):
     cells = self.map.shroom.netSize
     self.mana += round(cells * cfg.manaRate, 2)
     self.updateNetFrame()
+
+  def buildSiteUpdate(self):
+    for x, y in self.map.buildSites:
+      site = self.map.buildSites[(x,y)]
+      site.timer -= 1
+      if not site.timer:
+        site.entity.spawn(self.map, x, y)
+    self.map.purgeBuildSites()
 
 
 class Wave():

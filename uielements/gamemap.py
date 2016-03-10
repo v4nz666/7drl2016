@@ -15,28 +15,19 @@ class GameMap(Elements.Map):
   def __init__(self, x, y, w, h, map):
     super(GameMap, self).__init__(x, y, w, h, map)
     self.player = None
-    self.buildSites = []
-
 
   def setPlayer(self, player):
     self.player = player
     self._initFovMap()
     self.calculateFovMap()
 
-  def addBuildSite(self, x, y):
-    if not (x, y) in self.buildSites:
-      self.buildSites.append((x, y))
-  def removeBuildSite(self, x, y):
-    if (x,y) in self.buildSites:
-      self.buildSites.remove((x,y))
-
-  def updateBuildChar(self):
+  def updateBuildAnimation(self):
     self.buildCharIndex += 1
     if self.buildCharIndex >= len(self.buildChars):
       self.buildCharIndex = 0
 
     onScreen = False
-    for (x, y) in self.buildSites:
+    for (x, y) in self.map.buildSites:
       if not self.onScreen(x, y):
         continue
       onScreen = True
@@ -68,7 +59,7 @@ class GameMap(Elements.Map):
 
   def cellToView(self, c, x, y):
     result = super(GameMap, self).cellToView(c)
-    if (x, y) in self.buildSites:
+    if (x, y) in self.map.buildSites and not (c.item or c.entity):
       result = CellView(self.buildChars[self.buildCharIndex], result.fg, result.bg)
     return result
 
