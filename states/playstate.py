@@ -162,7 +162,7 @@ class PlayState(GameState):
 # Item use callbacks
   def setupItems(self):
     def useSpore(x, y):
-      self.map.addBuildSite(x, y, BuildSite(5, Node("Node", chars.shroom, Colors.white)))
+      self.map.addBuildSite(x, y, BuildSite(5, Node("Node", chars.node, Colors.white)))
       print "BAM Spore deployed"
     items.spore.use = useSpore
 
@@ -336,6 +336,7 @@ class PlayState(GameState):
       site.timer -= 1
       if not site.timer:
         site.entity.spawn(self.map, x, y)
+        self.map.shroom.net.addNode(site.entity)
     self.map.purgeBuildSites()
 
 
