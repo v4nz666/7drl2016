@@ -2,7 +2,7 @@ __author__ = 'jripley'
 
 from RoguePy.libtcod import libtcod
 
-manaRate = 0.025
+manaRate = 0.00675
 
 ### Random
 seed = 666
@@ -24,10 +24,10 @@ ui = {
   'invW': 24,
   'invH': 10,
 
-  'manaX': 96 - 24,
-  'manaY': 14,
-  'manaW': 24,
-  'manaH': 16
+  'netX': 96 - 24,
+  'netY': 14,
+  'netW': 24,
+  'netH': 16
 }
 
 world = {

@@ -76,13 +76,31 @@ class PlayState(GameState):
 
     self.view.addElement(self.invFrame)
 
-    # Mana
-    self.manaFrame = Elements.Frame(cfg.ui['manaX'], cfg.ui['manaY'], cfg.ui['manaW'], cfg.ui['manaH'], "Mana")
-    self.manaFrame = Elements.Frame(cfg.ui['manaX'], cfg.ui['manaY'], cfg.ui['manaW'], cfg.ui['manaH'], "Mana")
-    self.manaFrame.setDefaultForeground(Colors.green)
-    self.manaFrame.hide()
+    # Network
+    self.netFrame = Elements.Frame(cfg.ui['netX'], cfg.ui['netY'], cfg.ui['netW'], cfg.ui['netH'], "net")
+    self.netFrame.setDefaultForeground(Colors.green)
+    self.netFrame.hide()
+    
+    self.netManaLabel = Elements.Label(1, 1, "Mana: ").setDefaultForeground(Colors.dark_magenta)
+    self.netManaVal = Elements.Label(1, 1, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
+    self.netManaVal.bgOpacity = 0
+    
+    self.netSizeLabel = Elements.Label(1, 2, "Size: ").setDefaultForeground(Colors.dark_magenta)
+    self.netSizeVal = Elements.Label(1, 2, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
+    self.netSizeVal.bgOpacity = 0
+    
+    self.netRateLabel = Elements.Label(1, 3, "Rate: ").setDefaultForeground(Colors.dark_magenta)
+    self.netRateVal = Elements.Label(1, 3, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
+    self.netRateVal.bgOpacity = 0
+    
+    self.netFrame.addElement(self.netManaLabel)
+    self.netFrame.addElement(self.netManaVal)
+    self.netFrame.addElement(self.netSizeLabel)
+    self.netFrame.addElement(self.netSizeVal)
+    self.netFrame.addElement(self.netRateLabel)
+    self.netFrame.addElement(self.netRateVal)
 
-    self.view.addElement(self.manaFrame)
+    self.view.addElement(self.netFrame)
 
 
     # Messages
@@ -222,6 +240,8 @@ class PlayState(GameState):
   def activateShroom(self, shroom):
     self.messageList.message("As you approach the mushroom, your vision swirls.")
     shroom.activate(self.player)
+    self.updateNetFrame()
+
     self.turnHandlers.append(self.collectMana)
 
   def terrainCollide(self, src, dest):
@@ -266,7 +286,7 @@ class PlayState(GameState):
       self.waveTimerLabel.show()
       self.waveEnemyLabel.show()
       self.invFrame.show()
-      self.manaFrame.show()
+      self.netFrame.show()
 
     items = self.waves[0].items
     for i in range(len(items)):
@@ -289,9 +309,18 @@ class PlayState(GameState):
       self.waveTimerLabel.setLabel("Next Wave: %s" % self.waves[0].timer)
       self.waveEnemyLabel.setLabel("Enemies: %s" % len(self.waves[0].enemies))
 
+
+  def updateNetFrame(self):
+    self.netManaVal.setLabel(str(self.mana).rjust(cfg.ui['netW']-2))
+    self.netSizeVal.setLabel(str(self.map.shroom.netSize).rjust(cfg.ui['netW']-2))
+    self.netRateVal.setLabel(str(round(self.map.shroom.netSize * cfg.manaRate, 2)).rjust(cfg.ui['netW']-2))
+    self.netFrame.setDirty()
+
+
   def collectMana(self):
     cells = self.map.shroom.netSize
-    self.mana += cells * cfg.manaRate
+    self.mana += round(cells * cfg.manaRate, 2)
+    self.updateNetFrame()
 
 
 class Wave():
@@ -303,8 +332,6 @@ class Wave():
 
   def __repr__(self):
     return "Timer: %d\nenemies[%d]" % (self.timer, len(self.enemies))
-
-
 
   @staticmethod
   def All():
