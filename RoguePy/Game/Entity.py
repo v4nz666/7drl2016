@@ -13,14 +13,16 @@ class Entity:
         self.name = name
         self.ch = ch
         self.fg = fg
-        self.inventory = []
+        self.item = None
 
     def pickup(self, item):
+      if not self.item:
+        self.item = item
+        return True
+      return False
 
-      self.inventory.append(item)
-    def drop(self, item):
-      if item in self.inventory:
-        self.inventory.remove(item)
+    def drop(self):
+      self.item = None
 
     def tryMove(self, dx, dy):
         # Rest / skip check.

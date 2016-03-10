@@ -2,6 +2,8 @@ import RoguePy
 from RoguePy.Game.Item import Item
 import chars
 from entities import Shroom
+from entities import Construct
+import items
 import uielements
 
 __author__ = 'jripley'
@@ -18,17 +20,18 @@ class PlayState(GameState):
 
   def init(self):
     self.waves = []
-    self.setupHandlers()
+    self.mana = 0
 
   def setupHandlers(self):
 
+    self.addHandler('buildAnim', 12, self.mapElement.updateBuildChar)
     self.addHandler('hudRefresh', 1, self.hudRefresh)
     self.turnHandlers = []
 
   def setupView(self):
 
     # Map
-    self.mapElement = uielements.GameMap(0, 0, cfg.ui['uiWidth'] - cfg.ui['msgW'], cfg.ui['uiHeight'], self.map)
+    self.mapElement = uielements.GameMap(0, 0, cfg.ui['msgX'], cfg.ui['uiHeight'], self.map)
     self.view.addElement(self.mapElement)
 
     # HUD
@@ -49,6 +52,39 @@ class PlayState(GameState):
     self.waveEnemyLabel.hide()
     self.view.addElement(self.waveEnemyLabel)
 
+    # Inventory
+    self.invFrame = Elements.Frame(cfg.ui['invX'], cfg.ui['invY'], cfg.ui['invW'], cfg.ui['invH'], "Carrying")
+    self.invFrame = Elements.Frame(cfg.ui['invX'], cfg.ui['invY'], cfg.ui['invW'], cfg.ui['invH'], "Carrying")
+    self.invFrame.setDefaultForeground(Colors.amber)
+    self.invFrame.hide()
+
+    self.invItemChar = Elements.Element(1,1, 1,1)
+
+    def drawItemChar():
+      if self.player.item:
+        ch = self.player.item.ch
+      else:
+        ch = " "
+      libtcod.console_put_char(self.invItemChar.console, 0, 0, ch)
+      self.invItemChar.setDirty(False)
+
+    self.invItemChar.draw = drawItemChar
+    self.invFrame.addElement(self.invItemChar)
+
+    self.invItemLabel = Elements.Label(3, 1, "Nothing")
+    self.invFrame.addElement(self.invItemLabel)
+
+    self.view.addElement(self.invFrame)
+
+    # Mana
+    self.manaFrame = Elements.Frame(cfg.ui['manaX'], cfg.ui['manaY'], cfg.ui['manaW'], cfg.ui['manaH'], "Mana")
+    self.manaFrame = Elements.Frame(cfg.ui['manaX'], cfg.ui['manaY'], cfg.ui['manaW'], cfg.ui['manaH'], "Mana")
+    self.manaFrame.setDefaultForeground(Colors.green)
+    self.manaFrame.hide()
+
+    self.view.addElement(self.manaFrame)
+
+
     # Messages
     self.messageList = Elements.MessageScroller(cfg.ui['msgX'],cfg.ui['msgY'],cfg.ui['msgW'],cfg.ui['msgH'])
     self.messageList.bgOpacity = 0
@@ -65,8 +101,31 @@ class PlayState(GameState):
         'fn'  : sys.exit
       }
     })
+
+    self.mapElement.setInputs({
+      'useItem': {
+        'key' : Keys.Space,
+        'ch': None,
+        'fn': self.useItem
+      }
+
+    })
+
     self.mapElement.setDirectionalInputHandler(self.movePlayer)
     self.setFocus(self.mapElement)
+
+##########################
+#Input callbacks
+  def useItem(self):
+    i = self.player.item
+
+    if not i:
+      return False
+
+    i.use(self.player.x, self.player.y)
+    self.player.item = None
+    self.updateInvFrame()
+
 
   def movePlayer(self,dx,dy):
     if self.player.tryMove(dx, dy):
@@ -76,14 +135,41 @@ class PlayState(GameState):
       self.mapElement.setDirty()
       c = self.map.getCell(x, y)
       if c.item is not None:
-        i = self.map.removeItem(c.item, x, y)
-        if i:
-          self.messageList.message("%s got a %s" % (self.player.name,i.name))
-          self.map.trigger('item_interact', self.player, i)
+        self.map.trigger('item_interact', self.player, c.item)
     self.doTurn()
 
+
+##########################
+# Item use callbacks
+  def setupItems(self):
+    def useSpore(x, y):
+      self.mapElement.addBuildSite(x, y)
+      print "BAM Spore deployed"
+    items.spore.use = useSpore
+
+
+##########################
+# Event Callbacks
   def itemInteract(self, e, i):
-    e.pickup(i)
+    if e.pickup(i):
+      self.map.removeItem(i, self.player.x, self.player.y)
+      self.updateInvFrame()
+    else:
+      self.messageList.message("Can't carry any more")
+
+  def updateInvFrame(self):
+    item = self.player.item
+    if item:
+      i = item.name
+      self.invItemChar.setDirty()
+
+    else:
+      self.invItemChar.clear()
+      i = "Nothing"
+
+
+    self.invItemLabel.setLabel(i)
+    self.invFrame.setDirty()
 
   def spawnPlayer(self):
     x = self.map.shroom.x
@@ -111,21 +197,23 @@ class PlayState(GameState):
     self.mapElement.calculateFovMap()
     self.mapElement.center(self.player.x, self.player.y)
 
+    self.setupHandlers()
     self.setupInputs()
     self.setupEvents()
+    self.setupItems()
 
 
   def setupEvents(self):
     self.map.on('entity_interact', self.entityInteract)
     self.map.on('entity_collide', self.terrainCollide)
     self.map.on('item_interact', self.itemInteract)
+
   def entityInteract(self, src, target):
     if src == self.player:
       self.messageList.message("Player hit %s" % target.name)
       if target.name == "Shroom" and not target.active:
         self.activateShroom(target)
         self.setupWaves()
-
 
   def doTurn(self):
     for h in self.turnHandlers:
@@ -134,6 +222,7 @@ class PlayState(GameState):
   def activateShroom(self, shroom):
     self.messageList.message("As you approach the mushroom, your vision swirls.")
     shroom.activate(self.player)
+    self.turnHandlers.append(self.collectMana)
 
   def terrainCollide(self, src, dest):
     self.messageList.message("stepped on %s" % (dest.type))
@@ -171,10 +260,13 @@ class PlayState(GameState):
   def initNextWave(self, first=False):
     if not first:
       self.waves.pop(0)
+      if not len(self.waves):
+        return
     else:
       self.waveTimerLabel.show()
       self.waveEnemyLabel.show()
-
+      self.invFrame.show()
+      self.manaFrame.show()
 
     items = self.waves[0].items
     for i in range(len(items)):
@@ -186,16 +278,20 @@ class PlayState(GameState):
         if not x and not y:
           continue
 
-        if items[i].spawn(self.map, x, y):
+        if self.map.addItem(items[i], x, y):
           self.mapElement.setDirty()
           spawned = True
 
   def hudRefresh(self):
     self.fps.setLabel("FPS: %r" % (libtcod.sys_get_fps()))
-
+    
     if len(self.waves):
       self.waveTimerLabel.setLabel("Next Wave: %s" % self.waves[0].timer)
       self.waveEnemyLabel.setLabel("Enemies: %s" % len(self.waves[0].enemies))
+
+  def collectMana(self):
+    cells = self.map.shroom.netSize
+    self.mana += cells * cfg.manaRate
 
 
 class Wave():
@@ -208,19 +304,24 @@ class Wave():
   def __repr__(self):
     return "Timer: %d\nenemies[%d]" % (self.timer, len(self.enemies))
 
+
+
   @staticmethod
   def All():
     return [
       [
         100, # timer
         [    # items
-          Item("Spore",chars.spore,Colors.white),
-          Item("Spore",chars.spore,Colors.white)
+          items.spore,
+          items.spore
         ],
-        ['a', 2, 'd']  # enemies
+        []  # enemies
       ],[
         100, # timer
-        [],  # items
-        [1, 2, 3]  # enemies
+        [    # items
+          items.spore,
+          items.spore
+        ],
+        []  # enemies
       ]
     ]

@@ -6,10 +6,10 @@ class Item:
     self.ch = ch
     self.fg = fg
 
-  def spawn(self, map, x, y):
-    if map.addItem(self, x, y):
-      self.map = map
-      self.x = x
-      self.y = y
-      return True
-    return False
+    self.desc = ""
+
+
+
+  def use(self, x, y):
+    print self.name, " used"
+    pass

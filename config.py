@@ -2,6 +2,8 @@ __author__ = 'jripley'
 
 from RoguePy.libtcod import libtcod
 
+manaRate = 0.025
+
 ### Random
 seed = 666
 rand = libtcod.random_new_from_seed(seed)
@@ -11,10 +13,21 @@ def randint(max, min=0):
 ui = {
   'uiWidth': 96,
   'uiHeight': 60,
+
   'msgW': 24,
   'msgH': 16,
   'msgX': 96 - 24,
-  'msgY': 60 - 16
+  'msgY': 60 - 16,
+
+  'invX': 96 - 24,
+  'invY': 4,
+  'invW': 24,
+  'invH': 10,
+
+  'manaX': 96 - 24,
+  'manaY': 14,
+  'manaW': 24,
+  'manaH': 16
 }
 
 world = {
@@ -25,5 +38,5 @@ world = {
 }
 
 player = {
-  'viewRadius': 12
+  'viewRadius': 16
 }
