@@ -42,12 +42,6 @@ class PlayState(GameState):
     self.fps.bgOpacity = 0
     self.view.addElement(self.fps)
 
-    self.waveTimerLabel = Elements.Label(cfg.ui['msgX'], 1, "Next Wave: ".ljust(cfg.ui['msgW']))
-    self.waveTimerLabel.bgOpacity = 0
-    self.waveTimerLabel.setDefaultForeground(Colors.dark_fuchsia)
-    self.waveTimerLabel.hide()
-    self.view.addElement(self.waveTimerLabel)
-
     self.waveEnemyLabel = Elements.Label(cfg.ui['msgX'], 2, "Enemies: ".ljust(cfg.ui['msgW']))
     self.waveEnemyLabel.bgOpacity = 0
     self.waveEnemyLabel.setDefaultForeground(Colors.dark_fuchsia)
@@ -259,18 +253,13 @@ class PlayState(GameState):
     self.initNextWave(first=True)
     self.turnHandlers.append(self.waveUpdate)
 
-  # The enemies have arrived
-  def activateWave(self):
-    self.waves[0].active = True
-
-  # Start the timer, and deliver the items for the next wave
+  # Spawn enemies, and deliver the items for the next wave
   def initNextWave(self, first=False):
     if not first:
       self.waves.pop(0)
       if not len(self.waves):
         return
     else:
-      self.waveTimerLabel.show()
       self.waveEnemyLabel.show()
       self.invFrame.show()
       self.netFrame.show()
@@ -279,16 +268,27 @@ class PlayState(GameState):
     self.spawnEnemies(self.waves[0].enemies)
 
   def spawnEnemies(self, enemies):
+    side = cfg.randint(3)
     for e in range(len(enemies)):
       enemy = enemies[e]
-      (x, y) = self.findSuitableSpawnPoint()
+      (x, y) = self.findSuitableSpawnPoint(side)
       print "Spawing at:", x, y
       self.map.addEntity(enemy, x, y)
 
-  def findSuitableSpawnPoint(self):
-    y = 0
+  def findSuitableSpawnPoint(self, side):
     while True:
-      x = cfg.randint(self.map.width-1)
+      if side == 0:
+        y = 0
+        x = cfg.randint(self.map.width-1)
+      elif side == 1:
+        x = self.map.width - 1
+        y = cfg.randint(self.map.height-1)
+      elif side == 2:
+        y = self.map.height - 1
+        x = cfg.randint(self.map.width-1)
+      else:
+        x = 0
+        y = cfg.randint(self.map.height-1)
       c = self.map.getCell(x, y)
       if not c.passable:
         continue
@@ -314,7 +314,6 @@ class PlayState(GameState):
     self.fps.setLabel("FPS: %r" % (libtcod.sys_get_fps()))
     
     if len(self.waves):
-      self.waveTimerLabel.setLabel("Next Wave: %s" % self.waves[0].timer)
       self.waveEnemyLabel.setLabel("Enemies: %s" % len(self.waves[0].enemies))
 
 
@@ -328,15 +327,8 @@ class PlayState(GameState):
 ##############################
 # Turn handlers
 
-  # One time only, then remove
   def waveUpdate(self):
     wave = self.waves[0]
-    if wave.timer > 0:
-      wave.timer -= 1
-      return
-    else:
-      self.activateWave()
-
     if len(wave.enemies):
       pass #updateEnemies
     else:
@@ -363,9 +355,8 @@ class PlayState(GameState):
 
 
 class Wave():
-  def __init__(self, timer, items, enemies):
+  def __init__(self,items, enemies):
     self.active = False
-    self.timer = timer
     self.items = items
     self.enemies = enemies
 
@@ -373,7 +364,6 @@ class Wave():
   def All():
     return [
       [
-        100, # timer
         [    # items
           items.spore,
           items.spore
@@ -386,7 +376,6 @@ class Wave():
           Enemy(*enemy)
         ]  # enemies
       ],[
-        100, # timer
         [    # items
           items.spore,
           items.spore
