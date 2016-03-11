@@ -272,8 +272,8 @@ class PlayState(GameState):
     for e in range(len(enemies)):
       enemy = enemies[e]
       (x, y) = self.findSuitableSpawnPoint(side)
-      print "Spawing at:", x, y
-      self.map.addEntity(enemy, x, y)
+      enemy.spawn(self.map, x, y)
+
 
   def findSuitableSpawnPoint(self, side):
     while True:
@@ -294,7 +294,7 @@ class PlayState(GameState):
         continue
       if c.entity:
         continue
-      return (x, y)
+      return x, y
 
   def spawnItems(self, items):
     for i in range(len(items)):
@@ -330,7 +330,7 @@ class PlayState(GameState):
   def waveUpdate(self):
     wave = self.waves[0]
     if len(wave.enemies):
-      pass #updateEnemies
+      self.updateEnemies()
     else:
       self.messageList.message("wave complete")
       self.initNextWave()
@@ -338,6 +338,10 @@ class PlayState(GameState):
     if len(self.waves) == 0:
       self.messageList.message("you win!!!!")
       self.turnHandlers.remove(self.waveUpdate)
+
+  def updateEnemies(self):
+    for e in self.waves[0].enemies:
+      e.takeTurn()
 
   def collectMana(self):
     cells = self.map.shroom.netSize
@@ -349,8 +353,11 @@ class PlayState(GameState):
       site = self.map.buildSites[(x,y)]
       site.timer -= 1
       if not site.timer:
-        site.entity.spawn(self.map, x, y)
-        self.map.shroom.net.addNode(site.entity)
+        if site.entity.spawn(self.map, x, y):
+          self.map.shroom.net.addNode(site.entity)
+        else:
+          #Failed to add (Entity present), try again next turn
+          site.timer = 1
     self.map.purgeBuildSites()
 
 

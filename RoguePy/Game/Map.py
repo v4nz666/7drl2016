@@ -1,9 +1,11 @@
+from math import sqrt
+import sys
 from RoguePy.libtcod import libtcod
 from RoguePy.UI import Colors
 import chars
 
 import config
-
+from entities import Enemy
 
 
 class Map:
@@ -150,6 +152,29 @@ class Map:
       c.item = None
       return i
     return False
+
+
+  def pathFunc(self, enemy, _x1, _y1, _x2, _y2):
+    # print "(%d, %d),(%d,%d)" % (_x1,_y1,_x2,_y2)
+    dest = self.getCell(_x2,_y2)
+    if not dest.passable:
+      # print "P: ", _x1, _y1, "**", _x2, _y2, dest.entity.x, dest.entity.y
+      return 0.0
+    elif isinstance(dest.entity, Enemy):
+      # print "E Type:", type(dest.entity)
+      # print "E: ", _x1, _y1, "**", _x2, _y2, dest.entity.x, dest.entity.y
+      # sys.exit()
+      return 0.0
+    else:
+      return 0.1 + 0.1 * dest.moveCost
+
+
+  @staticmethod
+  def distance(x1,y1,x2,y2):
+    dx = x2 - x1
+    dy = y2 - y1
+    d = sqrt(dx**2 + dy**2)
+    return d
 
 class Cell:
   def __init__(self, type):
