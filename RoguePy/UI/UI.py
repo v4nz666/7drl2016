@@ -11,8 +11,16 @@ class UI:
   _path = ''
   
   def __init__(self):
-    self._rootPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    self._font = self._rootPath + b'/libtcod/lucida12x12_gs_tc.png'
+    path = os.path.dirname(os.path.abspath(sys.argv[0]))
+    print "path:", path
+
+    if path[-4:] == '.exe':
+        path = os.path.dirname(path)
+    print "path:", path
+
+    path += "/RoguePy/libtcod"
+
+    self._font = path + '/lucida12x12_gs_tc.png'
     self._renderer = libtcod.RENDERER_SDL
     
     self.width = None

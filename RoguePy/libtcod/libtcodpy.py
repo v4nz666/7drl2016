@@ -45,7 +45,16 @@ MAC=False
 MINGW=False
 MSVC=False
 
-path=os.path.dirname(os.path.abspath(__file__))
+
+path = os.path.dirname(os.path.abspath(sys.argv[0]))
+print "path:", path
+
+if path[-4:] == '.exe':
+    path = os.path.dirname(path)
+print "path:", path
+
+path += "/RoguePy/libtcod"
+
 if sys.platform.find('linux') != -1:
     _lib = ctypes.cdll[path + '/libtcod.so']
     LINUX=True
