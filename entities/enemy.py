@@ -44,7 +44,8 @@ class Enemy(Entity):
     print "taking turn"
     ### Attack if we can
     # In range, we can attack whether we have a path or not.
-    if self.map.distance(self.x, self.y, self.targetCoord[0], self.targetCoord[1]) <= self.range:
+    dist = self.map.distance(self.x, self.y, self.targetCoord[0], self.targetCoord[1])
+    if int(dist) <= self.range:
       #try attack()
       # # Our attack timer has elapsed
       # if self.waitLeft == 0:

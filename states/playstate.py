@@ -136,9 +136,9 @@ class PlayState(GameState):
     if not i:
       return False
 
-    i.use(self.player.x, self.player.y)
-    self.player.item = None
-    self.updateInvFrame()
+    if i.use(self.player.x, self.player.y):
+      self.player.item = None
+      self.updateInvFrame()
 
 
   def movePlayer(self,dx,dy):
@@ -157,10 +157,13 @@ class PlayState(GameState):
 # Item use callbacks
   def setupItems(self):
     def useSpore(x, y):
+      if not self.map.shroom.inNetwork(x, y):
+        self.messageList.message("Can not deploy spore outside of mycelial network")
+        return False
       self.map.addBuildSite(x, y, BuildSite(5, Node("Node", chars.node, Colors.white)))
-      print "BAM Spore deployed"
+      self.messageList.message("You place the spore in the ground")
+      return True
     items.spore.use = useSpore
-
 
 ##########################
 # Event Callbacks
@@ -227,7 +230,7 @@ class PlayState(GameState):
 
   def entityInteract(self, src, target):
     if src == self.player:
-      self.messageList.message("Player hit %s" % target.name)
+      # self.messageList.message("Player hit %s" % target.name)
       if target.name == "Shroom" and not target.active:
         self.activateShroom(target)
         self.setupWaves()
@@ -244,7 +247,8 @@ class PlayState(GameState):
     self.turnHandlers.append(self.collectMana)
 
   def terrainCollide(self, src, dest):
-    self.messageList.message("stepped on %s" % (dest.type))
+    # self.messageList.message("stepped on %s" % (dest.type))
+    pass
 
   def setupWaves(self):
     self.waves = []
@@ -355,6 +359,7 @@ class PlayState(GameState):
       if not site.timer:
         if site.entity.spawn(self.map, x, y):
           self.map.shroom.net.addNode(site.entity)
+          self.messageList.message("You feel your power increase")
         else:
           #Failed to add (Entity present), try again next turn
           site.timer = 1
