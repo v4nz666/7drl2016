@@ -17,8 +17,18 @@ class Map:
     else:
       self.cells = cells
     self.listeners = {}
-
     self.buildSites = {}
+
+    self.attacks = []
+    self.explosions = []
+
+
+  def addAttack(self, a):
+    if not a in self.attacks:
+      self.attacks.append(a)
+  def removeAttack(self, a):
+    if a in self.attacks:
+      self.attacks.remove(a)
 
   def addBuildSite(self, x, y, b):
     if not (x, y) in self.buildSites:
@@ -101,7 +111,6 @@ class Map:
       return False
 
     return self.cells[x + y * self.width]
-
   def setCell(self, x, y, cell):
     self.cells[x + y * self.width] = cell
 
@@ -157,13 +166,13 @@ class Map:
   def pathFunc(self, enemy, _x1, _y1, _x2, _y2):
     # print "(%d, %d),(%d,%d)" % (_x1,_y1,_x2,_y2)
     dest = self.getCell(_x2,_y2)
-    if not dest.passable:
+    if enemy.targetCoord == (_x2, _y2):
+      return 0.05
+    elif not dest.passable:
       # print "P: ", _x1, _y1, "**", _x2, _y2, dest.entity.x, dest.entity.y
       return 0.0
-    elif isinstance(dest.entity, Enemy):
-      # print "E Type:", type(dest.entity)
-      # print "E: ", _x1, _y1, "**", _x2, _y2, dest.entity.x, dest.entity.y
-      # sys.exit()
+    elif dest.entity:
+      # path around other entities
       return 0.0
     else:
       return 0.1 + 0.1 * dest.moveCost

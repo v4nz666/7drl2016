@@ -7,7 +7,7 @@ class Entity(object):
     self.item = None
 
   def spawn(self, map, x, y):
-    print "spawning", self.name
+    print "spawning", self.name, x, y
     self.map = map
     self.x = x
     self.y = y

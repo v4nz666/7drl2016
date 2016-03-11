@@ -7,5 +7,6 @@ water = 30
 tree = 24
 grass = 25
 mountain = 27
+smoke = 17
 
 

@@ -1,13 +1,13 @@
+__author__ = 'jripley'
+
 from RoguePy.UI.Elements.Map import CellView
 import config
-
-__author__ = 'jripley'
-from math import sqrt
-from RoguePy.UI import Elements
+from uielements import AttackOverlay
+from RoguePy.UI.Elements import Map
 from RoguePy.UI import Colors
 from RoguePy.libtcod import libtcod
 
-class GameMap(Elements.Map):
+class GameMap(Map):
 
   buildChars = ['\\', '|', '/', '-']
   buildCharIndex = 0
@@ -16,10 +16,21 @@ class GameMap(Elements.Map):
     super(GameMap, self).__init__(x, y, w, h, map)
     self.player = None
 
+    self.attackOverlay = AttackOverlay(0, 0, w, h)
+    self.addElement(self.attackOverlay)
+
   def setPlayer(self, player):
     self.player = player
     self._initFovMap()
     self.calculateFovMap()
+
+  def updateAttacks(self):
+    if not len(self.map.attacks):
+      return
+    for a in self.map.attacks:
+      a.update()
+
+    self.attackOverlay.setDirty()
 
   def updateBuildAnimation(self):
     self.buildCharIndex += 1
@@ -34,6 +45,8 @@ class GameMap(Elements.Map):
 
     if onScreen:
       self.setDirty()
+
+
 
   def draw(self):
     for onScreenY in range(self.height):
@@ -54,7 +67,6 @@ class GameMap(Elements.Map):
             # print "%d, %d : %d, %d" % (onScreenX, onScreenY, mapX, mapY)
             libtcod.console_set_char_background(
               self.console, onScreenX, onScreenY, Colors.chartreuse, flag=libtcod.BKGND_ADDALPHA(0.1))
-
     self.setDirty(False)
 
   def cellToView(self, c, x, y):

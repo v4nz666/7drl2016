@@ -1,5 +1,6 @@
 import RoguePy
 from RoguePy.Game.Item import Item
+from attack import Attack
 from buildsite import BuildSite
 import chars
 from enemies import *
@@ -26,7 +27,8 @@ class PlayState(GameState):
 
   def setupHandlers(self):
 
-    self.addHandler('buildAnim', 12, self.mapElement.updateBuildAnimation)
+    self.addHandler('buildAnim', 1, self.mapElement.updateBuildAnimation)
+    self.addHandler('attackAnim', 1, self.mapElement.updateAttacks)
     self.addHandler('hudRefresh', 1, self.hudRefresh)
     self.turnHandlers = [self.buildSiteUpdate]
 
@@ -314,6 +316,8 @@ class PlayState(GameState):
           self.mapElement.setDirty()
           spawned = True
 
+
+
   def hudRefresh(self):
     self.fps.setLabel("FPS: %r" % (libtcod.sys_get_fps()))
     
@@ -322,7 +326,7 @@ class PlayState(GameState):
 
 
   def updateNetFrame(self):
-    self.netManaVal.setLabel(str(self.mana).rjust(cfg.ui['netW']-2))
+    self.netManaVal.setLabel(("%0.2f" % self.mana).rjust(cfg.ui['netW']-2))
     self.netSizeVal.setLabel(str(self.map.shroom.netSize).rjust(cfg.ui['netW']-2))
     self.netRateVal.setLabel(str(round(self.map.shroom.netSize * cfg.manaRate, 2)).rjust(cfg.ui['netW']-2))
     self.netFrame.setDirty()
@@ -360,6 +364,10 @@ class PlayState(GameState):
         if site.entity.spawn(self.map, x, y):
           self.map.shroom.net.addNode(site.entity)
           self.messageList.message("You feel your power increase")
+
+          a = Attack(self.map, site.entity, self.player)
+          self.map.addAttack(a)
+
         else:
           #Failed to add (Entity present), try again next turn
           site.timer = 1
