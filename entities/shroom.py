@@ -5,7 +5,7 @@ __author__ = 'jripley'
 
 class Shroom(Node):
   active = False
-  radius = 12
+  netRadius = 12
 
   def activate(self, player):
     self.active = True
@@ -13,7 +13,6 @@ class Shroom(Node):
     self.initNetwork()
 
   def initNetwork(self):
-    print "initing spore network"
     self.net = SporeNetwork(self.map)
 
   def inNetwork(self, x, y):

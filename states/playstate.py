@@ -162,7 +162,7 @@ class PlayState(GameState):
       if not self.map.shroom.inNetwork(x, y):
         self.messageList.message("Can not deploy spore outside of mycelial network")
         return False
-      self.map.addBuildSite(x, y, BuildSite(5, Node("Node", chars.node, Colors.white)))
+      self.map.addBuildSite(x, y, BuildSite(5, Node("Node", chars.node, Colors.white, cfg.node)))
       self.messageList.message("You place the spore in the ground")
       return True
     items.spore.use = useSpore
@@ -200,10 +200,10 @@ class PlayState(GameState):
         _x = x+dx
         _y = y+dy
         try:
-          if self.map.getCell(_x, _y).type == 'grass':
+          if self.map.getCell(_x, _y).passable:
             print "Player: %d, %d" % (_x, _y)
             player = RoguePy.Game.Entity('Sporaculous', '@', Colors.white)
-            player.spawn(self.map, _x, _y)
+            player.spawn(self.map, _x, _y, cfg.player['hp'])
             return player
 
         except IndexError:
@@ -229,6 +229,7 @@ class PlayState(GameState):
     self.map.on('entity_interact', self.entityInteract)
     self.map.on('entity_collide', self.terrainCollide)
     self.map.on('item_interact', self.itemInteract)
+    self.map.on('entity_explosion', self.entityExplosion)
 
   def entityInteract(self, src, target):
     if src == self.player:
@@ -236,6 +237,13 @@ class PlayState(GameState):
       if target.name == "Shroom" and not target.active:
         self.activateShroom(target)
         self.setupWaves()
+
+  def entityExplosion(self, src, target):
+    dmg = 0.5 + (0.5  * cfg.randint(src.damage))
+    msg = "%s hit %s for [%d] damage"
+    if target.takeDamage(dmg):
+      msg = "%s killed %s! [%d] damage"
+    self.messageList.message(msg % (src.name, target.name, dmg))
 
   def doTurn(self):
     for h in self.turnHandlers:
@@ -247,6 +255,7 @@ class PlayState(GameState):
     self.updateNetFrame()
 
     self.turnHandlers.append(self.collectMana)
+    self.turnHandlers.append(self.nodeUpdate)
 
   def terrainCollide(self, src, dest):
     # self.messageList.message("stepped on %s" % (dest.type))
@@ -278,7 +287,7 @@ class PlayState(GameState):
     for e in range(len(enemies)):
       enemy = enemies[e]
       (x, y) = self.findSuitableSpawnPoint(side)
-      enemy.spawn(self.map, x, y)
+      enemy.spawn(self.map, x, y, enemy.hp)
 
 
   def findSuitableSpawnPoint(self, side):
@@ -348,26 +357,39 @@ class PlayState(GameState):
       self.turnHandlers.remove(self.waveUpdate)
 
   def updateEnemies(self):
+    purge = []
     for e in self.waves[0].enemies:
+      if e.isDead:
+        purge.append(e)
+        self.mapElement.setDirty()
       e.takeTurn()
+    for e in purge:
+      e.die()
+      self.waves[0].enemies.remove(e)
 
   def collectMana(self):
     cells = self.map.shroom.netSize
     self.mana += round(cells * cfg.manaRate, 2)
     self.updateNetFrame()
 
+  def nodeUpdate(self):
+    network = self.map.shroom.net
+    nodes = network.nodes
+    for n in nodes:
+      if n.isDead:
+        network.removeNode(n)
+        n.die()
+        self.mapElement.setDirty()
+      n.findTarget()
+
   def buildSiteUpdate(self):
     for x, y in self.map.buildSites:
       site = self.map.buildSites[(x,y)]
       site.timer -= 1
       if not site.timer:
-        if site.entity.spawn(self.map, x, y):
+        if site.entity.spawn(self.map, x, y, cfg.node['hp']):
           self.map.shroom.net.addNode(site.entity)
           self.messageList.message("You feel your power increase")
-
-          a = Attack(self.map, site.entity, self.player)
-          self.map.addAttack(a)
-
         else:
           #Failed to add (Entity present), try again next turn
           site.timer = 1

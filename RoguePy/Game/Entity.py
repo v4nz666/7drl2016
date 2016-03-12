@@ -1,17 +1,40 @@
 
 class Entity(object):
-  def __init__(self, name, ch, fg):
+  def __init__(self, name, ch, fg, opts = {}):
     self.name = name
     self.ch = ch
     self.fg = fg
     self.item = None
+    for o in opts:
+      setattr(self, o, opts[o])
+    self.isDead = False
 
-  def spawn(self, map, x, y):
+
+  def spawn(self, map, x, y, hp):
     print "spawning", self.name, x, y
     self.map = map
     self.x = x
     self.y = y
+    self.hp = hp
+
     return map.addEntity(self, x, y)
+
+  # Doin damage. Returns true if we died
+  def takeDamage(self, dmg):
+    print "%s took %d damage" % (self.name, dmg)
+    self.hp -= dmg
+    if self.hp <= 0:
+      self.isDead = True
+      return True
+    return False
+
+  def die(self):
+    print self.name, "died"
+    self.map.removeEntity(self, self.x, self.y)
+    if self.item:
+      self.map.addItem(self.item, self.x, self.y)
+
+
 
   def pickup(self, item):
     if not self.item:

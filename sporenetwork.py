@@ -53,7 +53,7 @@ class SporeNetwork():
   def withinRadius(x, y, node):
     dx = abs(x-node.x)
     dy = abs(y-node.y)
-    R = node.radius
+    R = node.netRadius
 
     if dx>R:
       return False

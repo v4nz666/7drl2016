@@ -114,6 +114,15 @@ class Map:
   def setCell(self, x, y, cell):
     self.cells[x + y * self.width] = cell
 
+  def getCellsInRad(self, x, y, rad):
+    cells = []
+    for _y in range(y - rad, y + rad + 1):
+      for _x in range(x - rad, x + rad + 1):
+        c = self.getCell(_x, _y)
+        if c:
+          cells.append(c)
+    return cells
+
   def on(self, eventName, fn):
     eventListeners = self.listeners.get(eventName)
     if eventListeners is None:

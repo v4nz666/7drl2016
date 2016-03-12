@@ -5,19 +5,18 @@ __author__ = 'jripley'
 
 class Enemy(Entity):
 
-  def __init__(self, name, ch, clr, target, pathFunc):
-    super(Enemy, self).__init__(name, ch, clr)
+  def __init__(self, name, ch, clr, target, pathFunc, opts):
+    super(Enemy, self).__init__(name, ch, clr, opts)
     self.target = target
     self.targetCoord = None
     self.path = None
     self.pathFunc = pathFunc
 
-    self.range = 1
 
 
-  def spawn(self, map, x, y):
+  def spawn(self, map, x, y, hp):
     print "Enemy spawned at", x, y
-    if super(Enemy, self).spawn(map, x, y):
+    if super(Enemy, self).spawn(map, x, y, hp):
       self.updateTarget()
 
   def updateTarget(self):

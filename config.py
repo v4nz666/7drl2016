@@ -1,3 +1,5 @@
+import items
+
 __author__ = 'jripley'
 
 from RoguePy.libtcod import libtcod
@@ -38,5 +40,21 @@ world = {
 }
 
 player = {
-  'viewRadius': 16
+  'viewRadius': 16,
+  'hp': 100
+}
+
+shroom = {
+  'hp': 100,
+  'damage': 20,
+  'range': 12,
+  'radius': 3
+}
+
+node = {
+  'hp': 25,
+  'damage': 12,
+  'range': 6,
+  'radius': 1,
+  'item': items.spore
 }

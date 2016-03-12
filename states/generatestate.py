@@ -1,4 +1,5 @@
 import chars
+import config as cfg
 from entities import Shroom
 
 __author__ = 'jripley'
@@ -193,8 +194,8 @@ class GenerateState(GameState):
     y = minY + config.randint(maxY)
 
     if self.map.getCell(x, y).type == 'grass':
-      shroom = Shroom('Shroom', chars.shroom, Colors.white)
-      shroom.spawn(self.map, x, y)
+      shroom = Shroom('Shroom', chars.shroom, Colors.white, cfg.shroom)
+      shroom.spawn(self.map, x, y, cfg.shroom['hp'])
       self.map.shroom = shroom
     else:
       self.spawnShroom()

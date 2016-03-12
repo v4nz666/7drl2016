@@ -1,10 +1,7 @@
 import chars
-
 __author__ = 'jripley'
 
 class Explosion():
-
-
   def __init__(self, a):
     self.attack = a
     self.coords = []
