@@ -47,14 +47,14 @@ player = {
 shroom = {
   'hp': 100,
   'damage': 20,
-  'range': 12,
+  'range': 16,
   'radius': 3
 }
 
 node = {
   'hp': 25,
   'damage': 12,
-  'range': 6,
+  'range': 8,
   'radius': 1,
   'item': items.spore
 }

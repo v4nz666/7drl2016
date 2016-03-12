@@ -7,9 +7,8 @@ from RoguePy.Game import Entity
 
 
 class Node(Entity):
-  netRadius = 8
   def findTarget(self):
-    cells = self.map.getCellsInRad(self.x, self.y, self.radius)
+    cells = self.map.getCellsInRad(self.x, self.y, self.range)
     for c in cells:
       if not c.entity:
         continue

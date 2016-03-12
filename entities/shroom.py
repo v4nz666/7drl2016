@@ -5,7 +5,6 @@ __author__ = 'jripley'
 
 class Shroom(Node):
   active = False
-  netRadius = 12
 
   def activate(self, player):
     self.active = True
