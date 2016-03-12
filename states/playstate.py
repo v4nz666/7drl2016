@@ -27,9 +27,9 @@ class PlayState(GameState):
 
   def setupHandlers(self):
 
-    self.addHandler('buildAnim', 1, self.mapElement.updateBuildAnimation)
-    self.addHandler('attackAnim', 1, self.mapElement.updateAttacks)
     self.addHandler('hudRefresh', 1, self.hudRefresh)
+    self.addHandler('attackAnim', 2, self.mapElement.updateAttacks)
+    self.addHandler('buildAnim', 1, self.mapElement.updateBuildAnimation)
     self.turnHandlers = [self.buildSiteUpdate]
 
   def setupView(self):
@@ -237,12 +237,21 @@ class PlayState(GameState):
       if target.name == "Shroom" and not target.active:
         self.activateShroom(target)
         self.setupWaves()
+        return
+      elif target.name == "Node":
+        #ignore player-node interactions
+        return
+
+    self.messageList.message("%s attacks %s" % (src.name, target.name))
 
   def entityExplosion(self, src, target):
-    dmg = 0.5 + (0.5  * cfg.randint(src.damage))
+    if target.isDead:
+      return
+    dmg = (src.damage * 0.5) + (0.5  * cfg.randint(src.damage))
     msg = "%s hit %s for [%d] damage"
     if target.takeDamage(dmg):
       msg = "%s killed %s! [%d] damage"
+      target.die()
     self.messageList.message(msg % (src.name, target.name, dmg))
 
   def doTurn(self):

@@ -13,6 +13,8 @@ class Node(Entity):
       if not c.entity:
         continue
       if isinstance(c.entity, Enemy):
+        if c.entity.isDead:
+          continue
         a = Attack(self.map, self, c.entity, self.damage, self.radius)
         self.map.addAttack(a)
 
