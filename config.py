@@ -8,8 +8,7 @@ from RoguePy.libtcod import libtcod
 manaRate = 0.00675
 
 ### Random
-seed = 666
-rand = libtcod.random_new_from_seed(seed)
+rand = libtcod.random_get_instance()
 def randint(max, min=0):
   return libtcod.random_get_int(rand, min, max)
 

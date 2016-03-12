@@ -136,9 +136,28 @@ class GenerateState(GameState):
 
         self.removeHandler('gen')
         return True
+      else:
+        print "invalid map. Retrying"
 
   def validMap(self):
-    return True
+    passable = lambda x1, y1, x2, y2, blech: int(self.map.getCell(x2, y2).passable)
+    path = libtcod.path_new_using_function(self.map.width, self.map.height, passable)
+
+    # brute force: make sure all tiles around the shroom can get to cell 0,0
+    for dy in range(-1,2):
+      for dx in range(-1,2):
+        x = dx + self.map.shroom.x
+        y = dy + self.map.shroom.y
+
+        libtcod.path_compute(path, 0, 0, x, y)
+        s = libtcod.path_size(path)
+        if s:
+          print "Got path, length", s
+          return True
+        else:
+          print "no path", x, y
+    libtcod.path_delete(path)
+    return False
 
   def generateTrees(self):
     caTreeDensity = 0.666

@@ -367,7 +367,13 @@ class PlayState(GameState):
 
     if len(self.waves) == 0:
       self.messageList.message("you win!!!!")
+      self.removeHandler('repathEnemies')
+      self.turnHandlers.remove(self.collectMana)
+      self.turnHandlers.remove(self.nodeUpdate)
       self.turnHandlers.remove(self.waveUpdate)
+      # WIN !
+      print "Woohoo!"
+  #     display endgame View()
 
   def updateEnemies(self):
     for e in self.waves[0].enemies:
@@ -376,6 +382,8 @@ class PlayState(GameState):
       e.takeTurn()
 
   def repathEnemies(self):
+    if not len(self.waves):
+      return
     print "repathing"
     for e in self.waves[0].enemies:
       if e.isDead:
