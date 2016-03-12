@@ -1,3 +1,4 @@
+from entities import Enemy
 import items
 
 __author__ = 'jripley'
@@ -46,15 +47,20 @@ player = {
 
 shroom = {
   'hp': 100,
+  'targetPrio': [Enemy],
   'damage': 20,
   'range': 16,
-  'radius': 3
+  'radius': 3,
+  'cooldown': 5
 }
 
 node = {
   'hp': 25,
+  'targetPrio': [Enemy],
   'damage': 12,
   'range': 8,
   'radius': 1,
+  'cooldown': 3,
   'item': items.spore
 }
+

@@ -22,7 +22,11 @@ class Map:
     self.attacks = []
     self.explosions = []
 
+  def setPlayer(self, p):
+    self.player = p
 
+  def getPlayerCoords(self):
+    return (self.player.x, self.player.y)
   def addAttack(self, a):
     if not a in self.attacks:
       self.attacks.append(a)

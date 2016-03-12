@@ -1,3 +1,5 @@
+from attack import Attack
+
 
 class Entity(object):
   def __init__(self, name, ch, fg, opts = {}):
@@ -5,8 +7,12 @@ class Entity(object):
     self.ch = ch
     self.fg = fg
     self.item = None
+    #likely overwritten in the loop below
+    self.cooldown = 0
     for o in opts:
       setattr(self, o, opts[o])
+
+    self.cooldownTimer = self.cooldown
     self.isDead = False
 
 
@@ -18,6 +24,23 @@ class Entity(object):
     self.hp = hp
 
     return map.addEntity(self, x, y)
+
+  def findTarget(self):
+    cells = self.map.getCellsInRad(self.x, self.y, self.range)
+    for c in cells:
+      if not c.entity:
+        continue
+      for tType in self.targetPrio:
+        if isinstance(c.entity, tType):
+          if c.entity.isDead:
+            continue
+          return c.entity
+    return False
+
+  def attack(self, t):
+    a = Attack(self.map, self, t, self.damage, self.radius)
+    self.map.addAttack(a)
+
 
   # Doin damage. Returns true if we died
   def takeDamage(self, dmg):
@@ -33,6 +56,15 @@ class Entity(object):
     self.map.removeEntity(self, self.x, self.y)
     if self.item:
       self.map.addItem(self.item, self.x, self.y)
+
+  # Check on our cooldown timer, decrement (or reset) as appropriate.
+  def readyToAttack(self):
+    if self.cooldownTimer <= 0:
+      self.cooldownTimer = self.cooldown
+      print "FIRE!", self
+      return True
+    print "Waiting", self
+    self.cooldownTimer -= 1
 
 
 

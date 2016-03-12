@@ -1,5 +1,6 @@
 from RoguePy.libtcod import libtcod
 from RoguePy.Game import Entity
+import entities
 
 __author__ = 'jripley'
 
@@ -7,12 +8,9 @@ class Enemy(Entity):
 
   def __init__(self, name, ch, clr, target, pathFunc, opts):
     super(Enemy, self).__init__(name, ch, clr, opts)
-    self.target = target
     self.targetCoord = None
     self.path = None
     self.pathFunc = pathFunc
-
-
 
   def spawn(self, map, x, y, hp):
     print "Enemy spawned at", x, y
@@ -20,8 +18,28 @@ class Enemy(Entity):
       self.updateTarget()
 
   def updateTarget(self):
-    if self.target == 'shroom':
-      self.targetCoord = (self.map.shroom.x, self.map.shroom.y)
+
+    for t in self.targetPrio:
+      if t == entities.Shroom:
+        self.targetCoord = (self.map.shroom.x, self.map.shroom.y)
+        break
+      elif t == entities.Node:
+        net = self.map.shroom.net
+
+        index = 0
+        closest = 0
+        d = 99999
+
+        for n in net.nodes:
+          if self.map.distance(self.x, self.y, n.x, n.y) < d:
+            closest = index
+          index += 1
+        closestNode = net.nodes[closest]
+        self.targetCoord = (closestNode.x, closestNode.y)
+        break
+      elif t == entities.Player:
+        self.targetCoord = self.map.getPlayerCoords()
+        break
 
     if self.path:
       libtcod.path_delete(self.path)
@@ -39,17 +57,9 @@ class Enemy(Entity):
     # In range, we can attack whether we have a path or not.
     dist = self.map.distance(self.x, self.y, self.targetCoord[0], self.targetCoord[1])
     if int(dist) <= self.range:
-      #try attack()
-      # # Our attack timer has elapsed
-      # if self.waitLeft == 0:
-      #   # Reset the wait timer
-      #   self.attacking = True
-      #   self.waitLeft = self.waitTimeout
-      #   return True
-      # # Not yet time to attack, returning False will trigger an idleUpdate()
-      # else:
-      #   return False
-      # print "In range!"
+      if self.readyToAttack():
+        #idleUpdate?!
+        pass
       return True
 
     ### Try to move

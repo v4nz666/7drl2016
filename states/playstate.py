@@ -17,7 +17,7 @@ import config as cfg
 from RoguePy.Input import Keys
 from RoguePy.UI import Elements
 from RoguePy.UI import Colors
-from RoguePy.State import GameState, TickHandler
+from RoguePy.State import GameState
 from RoguePy.libtcod import libtcod
 class PlayState(GameState):
 
@@ -202,7 +202,7 @@ class PlayState(GameState):
         try:
           if self.map.getCell(_x, _y).passable:
             print "Player: %d, %d" % (_x, _y)
-            player = RoguePy.Game.Entity('Sporaculous', '@', Colors.white)
+            player = Player('Sporaculous', '@', Colors.white)
             player.spawn(self.map, _x, _y, cfg.player['hp'])
             return player
 
@@ -252,6 +252,8 @@ class PlayState(GameState):
     if target.takeDamage(dmg):
       msg = "%s killed %s! [%d] damage"
       target.die()
+      if isinstance(target, Enemy):
+        self.purgeEnemies()
     self.messageList.message(msg % (src.name, target.name, dmg))
 
   def doTurn(self):
@@ -276,6 +278,8 @@ class PlayState(GameState):
       self.waves.append(Wave(*wp))
     self.initNextWave(first=True)
     self.turnHandlers.append(self.waveUpdate)
+    self.addHandler('enemyPaths', 120, self.repathEnemies)
+
 
   # Spawn enemies, and deliver the items for the next wave
   def initNextWave(self, first=False):
@@ -366,15 +370,27 @@ class PlayState(GameState):
       self.turnHandlers.remove(self.waveUpdate)
 
   def updateEnemies(self):
+    for e in self.waves[0].enemies:
+      if e.isDead:
+        continue
+      e.takeTurn()
+
+  def repathEnemies(self):
+    print "repathing"
+    for e in self.waves[0].enemies:
+      if e.isDead:
+        continue
+      e.updateTarget()
+
+
+  def purgeEnemies(self):
     purge = []
     for e in self.waves[0].enemies:
       if e.isDead:
         purge.append(e)
-        self.mapElement.setDirty()
-      e.takeTurn()
     for e in purge:
-      e.die()
       self.waves[0].enemies.remove(e)
+    self.hudRefresh()
 
   def collectMana(self):
     cells = self.map.shroom.netSize
@@ -389,7 +405,12 @@ class PlayState(GameState):
         network.removeNode(n)
         n.die()
         self.mapElement.setDirty()
-      n.findTarget()
+
+      t = n.findTarget()
+      if t and n.readyToAttack():
+        print "Attacking!"
+        n.attack(t)
+
 
   def buildSiteUpdate(self):
     for x, y in self.map.buildSites:
