@@ -11,6 +11,7 @@ class Enemy(Entity):
     self.targetCoord = None
     self.path = None
     self.pathFunc = pathFunc
+    self.map = None
 
   def spawn(self, map, x, y, hp):
     print "Enemy spawned at", x, y
@@ -18,7 +19,8 @@ class Enemy(Entity):
       self.updateTarget()
 
   def updateTarget(self):
-
+    if not self.map:
+      return
     for t in self.targetPrio:
       if t == entities.Shroom:
         self.targetCoord = (self.map.shroom.x, self.map.shroom.y)

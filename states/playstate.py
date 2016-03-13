@@ -61,6 +61,12 @@ class PlayState(GameState):
     self.waveEnemyLabel.hide()
     self.view.addElement(self.waveEnemyLabel)
 
+    self.waveTimerLabel = Elements.Label(cfg.ui['msgX'], 1, "Next Wave: ".ljust(cfg.ui['msgW']))
+    self.waveTimerLabel.bgOpacity = 0
+    self.waveTimerLabel.setDefaultForeground(Colors.dark_fuchsia)
+    self.waveTimerLabel.hide()
+    self.view.addElement(self.waveTimerLabel)
+
     # Inventory
     self.invFrame = Elements.Frame(cfg.ui['invX'], cfg.ui['invY'], cfg.ui['invW'], cfg.ui['invH'], "Carrying")
     self.invFrame = Elements.Frame(cfg.ui['invX'], cfg.ui['invY'], cfg.ui['invW'], cfg.ui['invH'], "Carrying")
@@ -353,7 +359,6 @@ class PlayState(GameState):
       self.waves.append(Wave(*wp))
     self.initNextWave(first=True)
     self.turnHandlers.append(self.waveUpdate)
-    self.addHandler('enemyPaths', 120, self.repathEnemies)
 
 
   # Spawn enemies, and deliver the items for the next wave
@@ -361,14 +366,15 @@ class PlayState(GameState):
     if not first:
       self.waves.pop(0)
       if not len(self.waves):
+        self.removeHandler('enemyPaths')
         return
     else:
+      self.addHandler('enemyPaths', 120, self.repathEnemies)
+      self.waveTimerLabel.show()
       self.waveEnemyLabel.show()
       self.invFrame.show()
       self.netFrame.show()
-
     self.spawnItems(self.waves[0].items)
-    self.spawnEnemies(self.waves[0].enemies)
 
   def spawnEnemies(self, enemies):
     side = cfg.randint(3)
@@ -376,7 +382,6 @@ class PlayState(GameState):
       enemy = enemies[e]
       (x, y) = self.findSuitableSpawnPoint(side)
       enemy.spawn(self.map, x, y, enemy.hp)
-
 
   def findSuitableSpawnPoint(self, side):
     while True:
@@ -419,6 +424,7 @@ class PlayState(GameState):
     self.fps.setLabel("FPS: %r" % (libtcod.sys_get_fps()))
     
     if len(self.waves):
+      self.waveTimerLabel.setLabel("Next Wave: %s" % self.waves[0].timer)
       self.waveEnemyLabel.setLabel("Enemies: %s" % len(self.waves[0].enemies))
 
 
@@ -435,6 +441,13 @@ class PlayState(GameState):
 
   def waveUpdate(self):
     wave = self.waves[0]
+
+    if wave.timer > 0:
+      wave.timer -= 1
+      return
+    elif not wave.active:
+      self.spawnEnemies(self.waves[0].enemies)
+      wave.active = True
     if len(wave.enemies):
       self.updateEnemies()
     else:
@@ -527,15 +540,17 @@ class PlayState(GameState):
 
 
 class Wave():
-  def __init__(self,items, enemies):
+  def __init__(self, timer, items, enemies):
     self.active = False
+    self.timer = timer
     self.items = items
     self.enemies = enemies
 
   @staticmethod
   def All():
     return [
-      [
+      [ ### Wave 1
+        10, #timer
         [    # items
           items.spore,
           items.spore
@@ -550,7 +565,8 @@ class Wave():
           Enemy(*enemy),
           Enemy(*enemy)
         ]  # enemies
-      ],[
+      ],[ ### Wave 2
+        50, #timer
         [    # items
           items.spore,
           items.spore,
