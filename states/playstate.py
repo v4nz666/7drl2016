@@ -25,10 +25,10 @@ class PlayState(GameState):
     self.waves = []
     self.mana = 0
 
-  def beforeLoad(self):
+  def beforeUnload(self):
     self.messageList.messages = []
     self.messageList.clear()
-    self.messageList.setDirty()
+    self.view.setDirty()
 
   def setupHandlers(self):
 
@@ -560,9 +560,9 @@ class PlayState(GameState):
       self.turnHandlers.remove(self.collectMana)
       self.turnHandlers.remove(self.nodeUpdate)
       self.turnHandlers.remove(self.waveUpdate)
+
       # WIN !
-      #  display endgame View()
-      self.manager.setNextState('generate')
+      self.manager.setNextState('win')
 
 
   def updateEnemies(self):

@@ -16,5 +16,6 @@ game = Game("Sporaculous", 96, 60, False)
 game.addState(SplashState('splash'))
 game.addState(GenerateState('generate'))
 game.addState(PlayState('play'))
+game.addState(WinState('win'))
 
 game.run('splash')

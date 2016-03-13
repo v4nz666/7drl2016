@@ -41,9 +41,6 @@ class SplashState(GameState):
 
 
   def setupInputs(self):
-    def toGenerate():
-      self.manager.setNextState('generate')
-
     # Inputs. =================================================================================
     self.view.setInputs({
       'quit' : {
@@ -54,6 +51,6 @@ class SplashState(GameState):
       'next' : {
         'key' : 'any',
         'ch'  : None,
-        'fn'  : toGenerate
+        'fn'  : lambda: self.manager.setNextState('generate')
       }
     })
