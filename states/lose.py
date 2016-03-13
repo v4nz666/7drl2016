@@ -1,26 +1,25 @@
+__author__ = 'jripley'
 import sys
+from RoguePy import State
 from RoguePy.Input import Keys
 from RoguePy.UI import Elements, Colors
 import config
 
-__author__ = 'jripley'
 
-from RoguePy import State
-
-class WinState(State.GameState):
+class LoseState(State.GameState):
   def init(self):
-    winString = 'You Win!'
-    winX = (config.ui['uiWidth'] - len(winString)) / 2
-    winY = config.ui['uiHeight'] / 2 - 3
-    win = Elements.Label(winX, winY, winString)\
-      .setDefaultForeground(Colors.gold)
-    self.view.addElement(win)
+    loseString = 'You lose!'
+    loseX = (config.ui['uiWidth'] - len(loseString)) / 2
+    loseY = config.ui['uiHeight'] / 2 - 3
+    lose = Elements.Label(loseX, loseY, loseString)\
+      .setDefaultForeground(Colors.dark_crimson)
+    self.view.addElement(lose)
 
-    safeString = 'The forest is safe.'
+    safeString = 'The forest is overrun.'
     safeX = (config.ui['uiWidth'] - len(safeString)) / 2
     safeY = config.ui['uiHeight'] / 2 - 2
     safe = Elements.Label(safeX, safeY, safeString)\
-      .setDefaultForeground(Colors.silver)
+      .setDefaultForeground(Colors.darker_crimson)
     self.view.addElement(safe)
 
     pressKeyString = 'Esc - Quit'

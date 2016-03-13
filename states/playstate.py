@@ -33,6 +33,7 @@ class PlayState(GameState):
   def setupHandlers(self):
 
     self.addHandler('hudRefresh', 1, self.hudRefresh)
+    self.addHandler('loseCheck', 1, self.loseCheck)
     self.addHandler('attackAnim', 2, self.mapElement.updateAttacks)
     self.addHandler('buildAnim', 2, self.mapElement.updateBuildAnimation)
     self.turnHandlers = [self.buildSiteUpdate]
@@ -518,7 +519,9 @@ class PlayState(GameState):
           self.mapElement.setDirty()
           spawned = True
 
-
+  def loseCheck(self):
+    if self.map.shroom.isDead or self.player.isDead:
+      self.manager.setNextState('lose')
 
   def hudRefresh(self):
     self.fps.setLabel("FPS: %r" % (libtcod.sys_get_fps()))
