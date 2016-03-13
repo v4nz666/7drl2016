@@ -139,7 +139,13 @@ class Entity(object):
         'mul': 1.5
       },{
         'count': 10,
-        'mul': 2.25
+        'mul': 2
+      },{
+        'count': 14,
+        'mul': 2.5
+      },{
+        'count': 21,
+        'mul': 3
       }
     ]
     level = None

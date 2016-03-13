@@ -15,26 +15,26 @@ import sys
 
 import config as cfg
 from RoguePy.Input import Keys
-from RoguePy.UI import Elements, View
+from RoguePy.UI import Elements
 from RoguePy.UI import Colors
 from RoguePy.State import GameState
 from RoguePy.libtcod import libtcod
 class PlayState(GameState):
 
   def init(self):
-    self.targeting = False
     self.waves = []
     self.mana = 0
 
   def beforeLoad(self):
     self.messageList.messages = []
+    self.messageList.clear()
     self.messageList.setDirty()
 
   def setupHandlers(self):
 
     self.addHandler('hudRefresh', 1, self.hudRefresh)
     self.addHandler('attackAnim', 2, self.mapElement.updateAttacks)
-    self.addHandler('buildAnim', 1, self.mapElement.updateBuildAnimation)
+    self.addHandler('buildAnim', 2, self.mapElement.updateBuildAnimation)
     self.turnHandlers = [self.buildSiteUpdate]
 
   def setupView(self):
@@ -131,9 +131,9 @@ class PlayState(GameState):
     mapW = cfg.ui['uiWidth'] - cfg.ui['msgW']
     helpW = mapW / 2
     helpX = (mapW - helpW)/ 2
-    helpY = cfg.ui['uiHeight'] / 4
+    helpY = cfg.ui['uiHeight'] / 4 - 2
 
-    helpH = (cfg.ui['uiHeight'] - helpY) / 2
+    helpH = (cfg.ui['uiHeight'] - helpY) / 2 + 3
     self.helpDialog = Elements.Frame(helpX, helpY, helpW, helpH, "Help!")
 
     self.helpText = Elements.List(1,1, self.helpDialog.width - 2, self.helpDialog.height - 2)
@@ -157,7 +157,11 @@ class PlayState(GameState):
       "Fend off all the waves to win     ",
       "                                  ",
       "You  lose  if  you  or the Magical",
-      "Mushroom are killed               "
+      "Mushroom are killed               ",
+      "                                  ",
+      "Terrain type affects movement cost",
+      "                                  ",
+      "Use the terrain to your advantage "
     ])
     self.helpDialog.addElement(self.helpText)
     self.mapElement.addElement(self.helpDialog).hide()
@@ -646,8 +650,9 @@ class Wave():
   def All():
     return [
       [ ### Wave 1
-        10, #timer
+        1, #timer
         [    # items
+             items.spore,
              items.spore,
         ],
         [
@@ -658,8 +663,9 @@ class Wave():
           Enemy(*playerHunter)
         ]  # enemies
       ],[ ### Wave 2
-        50, #timer
+        25, #timer
         [    # items
+             items.spore,
              items.spore,
              items.spore,
         ],
@@ -681,6 +687,7 @@ class Wave():
       ],[ ### Wave 3
         60, #timer
         [    # items
+             items.spore,
              items.spore,
              items.spore,
              items.spore,
@@ -713,6 +720,7 @@ class Wave():
              items.spore,
              items.spore,
              items.spore,
+             items.spore,
         ],
         [
           Enemy(*nodeHunter),
@@ -734,6 +742,57 @@ class Wave():
           Enemy(*shroomHunter),
           Enemy(*shroomHunter),
           Enemy(*shroomHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+        ]  # enemies
+      ],[ ### Wave 5
+        100, #timer
+        [    # items
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+        ],
+        [
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
           Enemy(*playerHunter),
           Enemy(*playerHunter),
           Enemy(*playerHunter),
