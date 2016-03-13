@@ -37,9 +37,16 @@ class Entity(object):
           return c.entity
     return False
 
-  def attack(self, t):
-    a = Attack(self.map, self, t, self.damage, self.radius)
-    self.map.addAttack(a)
+  def attack(self, t, melee = False):
+
+    if melee:
+      if self.map.distance(self.x, self.y, t.x, t.y) == 1:
+        print "Entity melee attacking"
+        self.map.trigger('entityAttack', self, t)
+    else:
+      a = Attack(self.map, self, t, self.damage, self.radius)
+      self.map.addAttack(a)
+
 
 
   # Doin damage. Returns true if we died
@@ -92,7 +99,7 @@ class Entity(object):
 
     # Entity check.
     if dest.entity is not None:
-      self.map.trigger('entity_interact', self, dest.entity)
+      self.map.trigger('entityInteract', self, dest.entity)
       return False
 
     # Terrain check.
@@ -107,8 +114,6 @@ class Entity(object):
     self.x += dx
     self.y += dy
     self.map.addEntity(self,self.x, self.y)
-
-    self.map.trigger('entity_collide', self, dest)
     return True
 
   def canEnter(self, dest):

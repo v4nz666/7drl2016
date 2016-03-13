@@ -55,10 +55,14 @@ class Enemy(Entity):
   def takeTurn(self):
     ### Attack if we can
     # In range, we can attack whether we have a path or not.
-    dist = self.map.distance(self.x, self.y, self.targetCoord[0], self.targetCoord[1])
+    tx, ty = self.targetCoord[0], self.targetCoord[1]
+    dist = self.map.distance(self.x, self.y, tx, ty)
     if int(dist) <= self.range:
       if self.readyToAttack():
-        #idleUpdate?!
+        target = self.map.getCell(tx, ty).entity
+        if target:
+          self.attack(target, True)
+
         pass
       return True
 

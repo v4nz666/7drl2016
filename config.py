@@ -41,7 +41,8 @@ world = {
 
 player = {
   'viewRadius': 16,
-  'hp': 100
+  'hp': 100,
+  'damage': 12
 }
 
 shroom = {

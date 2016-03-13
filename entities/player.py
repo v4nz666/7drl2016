@@ -7,10 +7,10 @@ from entities.enemy import Enemy
 from RoguePy.Game import Entity
 
 class Player(Entity):
-  pass
 
-  def spawn(self, map, x, y, hp):
+  def spawn(self, map, x, y, hp, damage):
     super(Player, self).spawn(map, x, y, hp)
+    self.damage = damage
     self.map.setPlayer(self)
     
     

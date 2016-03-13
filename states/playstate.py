@@ -203,7 +203,7 @@ class PlayState(GameState):
           if self.map.getCell(_x, _y).passable:
             print "Player: %d, %d" % (_x, _y)
             player = Player('Sporaculous', '@', Colors.white)
-            player.spawn(self.map, _x, _y, cfg.player['hp'])
+            player.spawn(self.map, _x, _y, cfg.player['hp'], cfg.player['damage'])
             return player
 
         except IndexError:
@@ -226,12 +226,12 @@ class PlayState(GameState):
 
 
   def setupEvents(self):
-    self.map.on('entity_interact', self.entityInteract)
-    self.map.on('entity_collide', self.terrainCollide)
     self.map.on('item_interact', self.itemInteract)
-    self.map.on('entity_explosion', self.entityExplosion)
+    self.map.on('entityAttack', self.entityAttack)
+    self.map.on('entityInteract', self.entityInteract)
 
   def entityInteract(self, src, target):
+    # Special player handling
     if src == self.player:
       # self.messageList.message("Player hit %s" % target.name)
       if target.name == "Shroom" and not target.active:
@@ -241,12 +241,15 @@ class PlayState(GameState):
       elif target.name == "Node":
         #ignore player-node interactions
         return
+      else:
+        return
+    #otherwise, just pass through to entityAttack
+    self.entityAttack(src, target)
 
-    self.messageList.message("%s attacks %s" % (src.name, target.name))
-
-  def entityExplosion(self, src, target):
+  def entityAttack(self, src, target):
     if target.isDead:
       return
+
     dmg = (src.damage * 0.5) + (0.5  * cfg.randint(src.damage))
     msg = "%s hit %s for [%d] damage"
     if target.takeDamage(dmg):
@@ -267,10 +270,6 @@ class PlayState(GameState):
 
     self.turnHandlers.append(self.collectMana)
     self.turnHandlers.append(self.nodeUpdate)
-
-  def terrainCollide(self, src, dest):
-    # self.messageList.message("stepped on %s" % (dest.type))
-    pass
 
   def setupWaves(self):
     self.waves = []
