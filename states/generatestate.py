@@ -115,6 +115,9 @@ class GenerateState(GameState):
           'range': 0.666
         },{
           'type': 'mountain',
+          'range': 0.8
+        },{
+          'type': 'grass',
           'range': 1.0
         }
       ]

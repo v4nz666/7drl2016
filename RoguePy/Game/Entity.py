@@ -15,6 +15,8 @@ class Entity(object):
     self.cooldownTimer = self.cooldown
     self.isDead = False
 
+  def tick(self):
+    self.cooldownTimer -= 1
 
   def spawn(self, map, x, y, hp):
     print "spawning", self.name, x, y
@@ -38,7 +40,7 @@ class Entity(object):
     return False
 
   def attack(self, t, melee = False):
-
+    self.cooldownTimer = self.cooldown
     if melee:
       if self.map.distance(self.x, self.y, t.x, t.y) == 1:
         print "Entity melee attacking"
@@ -50,7 +52,6 @@ class Entity(object):
         x, y = t.x, t.y
       a = Attack(self.map, self, x, y, self.damage, self.radius)
       self.map.addAttack(a)
-
 
 
   # Doin damage. Returns true if we died
@@ -70,14 +71,7 @@ class Entity(object):
 
   # Check on our cooldown timer, decrement (or reset) as appropriate.
   def readyToAttack(self):
-    if self.cooldownTimer <= 0:
-      self.cooldownTimer = self.cooldown
-      print "FIRE!", self
-      return True
-    print "Waiting", self
-    self.cooldownTimer -= 1
-
-
+    return self.cooldownTimer <= 0
 
   def pickup(self, item):
     if not self.item:

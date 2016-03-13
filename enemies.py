@@ -28,4 +28,4 @@ playerHunter = {
 
 shroomHunter = ["Shroom hunter", '&', Colors.dark_flame, Map.pathFunc, shroomHunter]
 nodeHunter = ["Node hunter", 'x', Colors.dark_blue, Map.pathFunc, nodeHunter]
-playerHunter = ["Shroom hunter", 'w', Colors.dark_orange, Map.pathFunc, playerHunter]
+playerHunter = ["Player hunter", 'w', Colors.dark_orange, Map.pathFunc, playerHunter]

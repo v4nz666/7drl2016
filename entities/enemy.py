@@ -55,6 +55,7 @@ class Enemy(Entity):
 
 
   def takeTurn(self):
+    self.tick()
     ### Attack if we can
     # In range, we can attack whether we have a path or not.
     tx, ty = self.targetCoord[0], self.targetCoord[1]

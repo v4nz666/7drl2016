@@ -42,30 +42,30 @@ world = {
 player = {
   'viewRadius': 16,
   'hp': 100,
-  'damage': 12,
+  'damage': 10,
   'range': 16,
-  'radius': 2,
-  'cooldown': 5,
-  'attackCost': 50
+  'radius': 1,
+  'cooldown': 3,
+  'attackCost': 10
 }
 
 shroom = {
   'hp': 100,
   'targetPrio': [Enemy],
-  'damage': 20,
+  'damage': 16,
   'range': 16,
   'radius': 2,
-  'cooldown': 5,
+  'cooldown': 7,
   'attackCost': 50
 }
 
 node = {
   'hp': 25,
   'targetPrio': [Enemy],
-  'damage': 12,
+  'damage': 10,
   'range': 8,
   'radius': 1,
-  'cooldown': 3,
+  'cooldown': 5,
   'attackCost': 25,
   'item': items.spore
 }

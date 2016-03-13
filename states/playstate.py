@@ -203,8 +203,6 @@ class PlayState(GameState):
     if not 0 <= onscreenX < self.magicOverlay.width or not 0 <= onscreenY < self.magicOverlay.height:
       return
 
-    # TODO move this to the "Fire!" method
-    # if self.map.shroom.inNetwork(newX, newY):
     self.focusX = newX
     self.focusY = newY
 
@@ -213,7 +211,14 @@ class PlayState(GameState):
   def fireMagic(self):
     print "Firing"
     if self.map.shroom.inNetwork(self.focusX, self.focusY):
-      self.player.attack((self.focusX, self.focusY))
+      if self.player.readyToAttack():
+        if self.testMana(self.player.attackCost):
+          self.player.attack((self.focusX, self.focusY))
+        else:
+          self.messageList.message("Not enough mana!")
+      else:
+        self.messageList.message("You need time to recover")
+
       self.disableMagic(True)
     else:
       self.messageList.message("You have no power, outside the network")
@@ -224,7 +229,6 @@ class PlayState(GameState):
       return
     if not self.map.shroom.inNetwork(self.player.x, self.player.y):
       self.messageList.message("You feel weak away from the network")
-    print "Enabling magic mode"
     self.focusX = self.player.x
     self.focusY = self.player.y
     self.magicOverlay.show()
@@ -343,6 +347,7 @@ class PlayState(GameState):
     self.messageList.message(msg % (src.name, target.name, dmg))
 
   def doTurn(self):
+    self.player.tick()
     for h in self.turnHandlers:
       h()
 
@@ -518,6 +523,7 @@ class PlayState(GameState):
     network = self.map.shroom.net
     nodes = network.nodes
     for n in nodes:
+      n.tick()
       if n.isDead:
         network.removeNode(n)
         n.die()
@@ -526,11 +532,10 @@ class PlayState(GameState):
 
       t = n.findTarget()
       if t and n.readyToAttack():
-        print "Attacking!"
         if self.testMana(n.attackCost):
           n.attack(t)
         else:
-          self.messageList.message("Not enough mana to attack")
+          self.messageList.message("Node can't attack. Not enough mana")
 
   def testMana(self, cost):
     if self.mana >= cost:
