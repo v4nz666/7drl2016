@@ -376,12 +376,27 @@ class PlayState(GameState):
       self.netFrame.show()
     self.spawnItems(self.waves[0].items)
 
-  def spawnEnemies(self, enemies):
+  def spawnEnemies(self, waveEnemies):
     side = cfg.randint(3)
-    for e in range(len(enemies)):
-      enemy = enemies[e]
-      (x, y) = self.findSuitableSpawnPoint(side)
-      enemy.spawn(self.map, x, y, enemy.hp)
+    passable = lambda x1, y1, x2, y2, blech: int(self.map.getCell(x2, y2).passable)
+
+    enemies = []
+    for e in range(len(waveEnemies)):
+      attempts = 0
+      while attempts < 10:
+        enemy = waveEnemies[e]
+        (x, y) = self.findSuitableSpawnPoint(side)
+        path = libtcod.path_new_using_function(self.map.width, self.map.height, passable)
+        libtcod.path_compute(path, x, y, self.map.shroom.x, self.map.shroom.y)
+        s = libtcod.path_size(path)
+        if s:
+          enemy.spawn(self.map, x, y, enemy.hp)
+          enemies.append(enemy)
+          libtcod.path_delete(path)
+          break
+        else:
+          attempts += 1
+      self.waves[0].enemies = enemies
 
   def findSuitableSpawnPoint(self, side):
     while True:
