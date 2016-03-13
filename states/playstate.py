@@ -33,7 +33,7 @@ class PlayState(GameState):
   def setupHandlers(self):
 
     self.addHandler('hudRefresh', 1, self.hudRefresh)
-    self.addHandler('attackAnim', 1, self.mapElement.updateAttacks)
+    self.addHandler('attackAnim', 2, self.mapElement.updateAttacks)
     self.addHandler('buildAnim', 1, self.mapElement.updateBuildAnimation)
     self.turnHandlers = [self.buildSiteUpdate]
 
@@ -161,6 +161,11 @@ class PlayState(GameState):
     ])
     self.helpDialog.addElement(self.helpText)
     self.mapElement.addElement(self.helpDialog).hide()
+    helpLabel = Elements.Label(5, self.mapElement.height - 1, "? - Help")
+    helpLabel.bgOpacity = 0
+    self.mapElement.addElement(helpLabel)\
+      .setDefaultForeground(Colors.gold)
+
 
   def toggleHelp(self):
     if self.helpDialog.visible:
