@@ -11,7 +11,6 @@ from RoguePy.UI import Elements, View
 from RoguePy.UI import Colors
 import terrains
 
-
 import config
 import sys
 from RoguePy.Input import Keys
@@ -21,24 +20,25 @@ from RoguePy.libtcod import libtcod
 class GenerateState(GameState):
   def init(self):
     self.setupView()
+    self.setupInputs()
 
+  def beforeLoad(self):
     self.addHandler('gen', 1, self.generateWorld)
-
     self.focusX = self.view.width/2
     self.focusY = self.view.height/2
 
-    self.setupInputs()
+  def beforeUnload(self):
+    self.view.removeElement(self.mapElement)
+    self.loadingLabel.setDirty()
 
   def setupView(self):
     loadingText= "Generating"
     loadingX = (self.view.width - len(loadingText)) / 2
     loadingY = self.view.height / 2 - 3
-    self.view.addElement(Elements.Label(loadingX, loadingY, loadingText))\
+    self.loadingLabel = self.view.addElement(Elements.Label(loadingX, loadingY, loadingText))\
       .setDefaultForeground(Colors.dark_azure)
-
-
   def setupInputs(self):
-    
+
     # Inputs. =================================================================================
     self.view.setInputs({
       'next' : {
@@ -51,32 +51,29 @@ class GenerateState(GameState):
         'ch'  : None,
         'fn'  : sys.exit
       },
-      'move_s': {
-          'key' : Keys.NumPad2,
-          'ch'  : None,
-          'fn'  : lambda: self.moveMap(0,1)
-      },
-      'move_w': {
-          'key' : Keys.NumPad4,
-          'ch'  : None,
-          'fn'  : lambda: self.moveMap(-1,0)
-      },
-      'move_e': {
-          'key' : Keys.NumPad6,
-          'ch'  : None,
-          'fn'  : lambda: self.moveMap(1,0)
-      },
-      'move_n': {
-          'key' : Keys.NumPad8,
-          'ch'  : None,
-          'fn'  : lambda: self.moveMap(0,-1)
+      'regen' : {
+        'key' : None,
+        'ch'  : 'r',
+        'fn'  : self.regenerate
       }
     })
+
+  def regenerate(self):
+    self.beforeUnload()
+    self.beforeLoad()
+
   def moveMap(self,dx,dy):
-    if self.focusX + dx >= 0 and self.focusX + dx < self.map.width:
-      self.focusX += dx
-    if self.focusY + dy >= 0 and self.focusY + dy < self.map.height:
-      self.focusY += dy
+
+    halfX = self.mapElement.width / 2
+    halfY = self.mapElement.height / 2
+
+    newX = self.focusX + dx
+    newY = self.focusY + dy
+
+    if newX >= halfX and newX < self.map.width - halfX:
+      self.focusX = newX
+    if newY >= halfY and newY < self.map.height - halfY:
+      self.focusY = newY
     self.mapElement.center(self.focusX, self.focusY)
 
   def generateWorld(self):
@@ -125,16 +122,20 @@ class GenerateState(GameState):
       ]
 
       self.map = Map.FromHeightmap(hm, thresholds)
+
+      libtcod.heightmap_delete(hm)
       self.generateTrees()
 
       self.spawnShroom()
       if self.validMap():
         self.mapElement = Elements.Map(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
-
         self.view.addElement(self.mapElement)
         self.mapElement.center(self.focusX, self.focusY)
 
+        self.mapElement.setDirectionalInputHandler(self.moveMap)
+        self.setFocus(self.mapElement)
         self.removeHandler('gen')
+
         return True
       else:
         print "invalid map. Retrying"

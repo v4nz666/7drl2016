@@ -75,7 +75,7 @@ class Map(Element):
   # TODO: Does this belong here, or in View? It's a bit hackish because we only want to replace
   #   a subset of the inputs, not the whole input set.
   # TODO: If input binding is streamlined, this won't work anymore.
-  def setDirectionalInputHandler(self, fn):
+  def setDirectionalInputHandler(self, fn, wasd=True, vim=True):
     from RoguePy.Input import Keys
     self._inputs['move_sw'] = {
         'key' : Keys.NumPad1,
@@ -122,4 +122,93 @@ class Map(Element):
         'ch'  : None,
         'fn'  : lambda: fn(1,-1)
     }
+    
+    if wasd:
+      self._inputs['wasd_sw'] = {
+          'key' : None,
+          'ch'  : "z",
+          'fn'  : lambda: fn(-1,1)
+      }
+      self._inputs['wasd_s'] = {
+          'key' : None,
+          'ch'  : "s",
+          'fn'  : lambda: fn(0,1)
+      }
+      self._inputs['wasd_se'] = {
+          'key' : None,
+          'ch'  : "c",
+          'fn'  : lambda: fn(1,1)
+      }
+      self._inputs['wasd_w'] = {
+          'key' : None,
+          'ch'  : "a",
+          'fn'  : lambda: fn(-1,0)
+      }
+      self._inputs['wasd_none'] = {
+          'key' : None,
+          'ch'  : "x",
+          'fn'  : lambda: fn(0,0)
+      }
+      self._inputs['wasd_e'] = {
+          'key' : None,
+          'ch'  : "d",
+          'fn'  : lambda: fn(1,0)
+      }
+      self._inputs['wasd_nw'] = {
+          'key' : None,
+          'ch'  : "q",
+          'fn'  : lambda: fn(-1,-1)
+      }
+      self._inputs['wasd_n'] = {
+          'key' : None,
+          'ch'  : "w",
+          'fn'  : lambda: fn(0,-1)
+      }
+      self._inputs['wasd_ne'] = {
+          'key' : None,
+          'ch'  : "e",
+          'fn'  : lambda: fn(1,-1)
+      }
+      
+    if vim:
+      self._inputs['vim_sw'] = {
+          'key' : None,
+          'ch'  : "b",
+          'fn'  : lambda: fn(-1,1)
+      }
+      self._inputs['vim_s'] = {
+          'key' : None,
+          'ch'  : "j",
+          'fn'  : lambda: fn(0,1)
+      }
+      self._inputs['vim_se'] = {
+          'key' : None,
+          'ch'  : "n",
+          'fn'  : lambda: fn(1,1)
+      }
+      self._inputs['vim_w'] = {
+          'key' : None,
+          'ch'  : "h",
+          'fn'  : lambda: fn(-1,0)
+      }
+      self._inputs['vim_e'] = {
+          'key' : None,
+          'ch'  : "l",
+          'fn'  : lambda: fn(1,0)
+      }
+      self._inputs['vim_nw'] = {
+          'key' : None,
+          'ch'  : "y",
+          'fn'  : lambda: fn(-1,-1)
+      }
+      self._inputs['vim_n'] = {
+          'key' : None,
+          'ch'  : "k",
+          'fn'  : lambda: fn(0,-1)
+      }
+      self._inputs['vim_ne'] = {
+          'key' : None,
+          'ch'  : "u",
+          'fn'  : lambda: fn(1,-1)
+      }
     

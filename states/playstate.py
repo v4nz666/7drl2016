@@ -374,6 +374,8 @@ class PlayState(GameState):
       # WIN !
       print "Woohoo!"
   #     display endgame View()
+      self.manager.setNextState('generate')
+
 
   def updateEnemies(self):
     for e in self.waves[0].enemies:
