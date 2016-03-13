@@ -316,7 +316,11 @@ class PlayState(GameState):
     self.map.on('item_interact', self.itemInteract)
     self.map.on('entityAttack', self.entityAttack)
     self.map.on('entityInteract', self.entityInteract)
+    self.map.on('moveWait', self.moveWait)
 
+  def moveWait(self, s, t):
+    print "move wait"
+    return self.doTurn()
   def entityInteract(self, src, target):
     # Special player handling
     if src == self.player:
