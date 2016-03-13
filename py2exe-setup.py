@@ -12,7 +12,7 @@ target_file = 'main.py'
 assets_dir = '.\\'
  
 # Filetypes not to be included in the above.
-excluded_file_types = ['py','pyc','project','pydevproject']
+excluded_file_types = ['py','pyc','project','pydevproject', 'bat']
  
 def get_data_files(base_dir, target_dir, list=[]):
     """
@@ -46,7 +46,7 @@ opts = { 'py2exe': {
   'bundle_files':'1',
   'compressed':'True',
   'optimize': 0,
-  'dll_excludes':['w9xpopen.exe']
+  'dll_excludes':['w9xpopen.exe', 'build.bat']
 }}
  
 # Run the setup utility.
