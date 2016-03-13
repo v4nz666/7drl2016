@@ -35,6 +35,24 @@ class GenerateState(GameState):
     loadingY = self.view.height / 2 - 3
     self.loadingLabel = self.view.addElement(Elements.Label(loadingX, loadingY, loadingText))\
       .setDefaultForeground(Colors.dark_azure)
+
+  def setupMapView(self):
+    self.mapElement = Elements.Map(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
+    self.view.addElement(self.mapElement)
+    self.mapElement.center(self.focusX, self.focusY)
+
+    self.mapElement.setDirectionalInputHandler(self.moveMap)
+    self.setFocus(self.mapElement)
+
+    keyFrame = Elements.Frame(cfg.ui['uiWidth'] / 4-2, 1, cfg.ui['uiWidth'] / 2 + 4, 3, "Peep dis")
+    self.mapElement.addElement(keyFrame).setDefaultColors(Colors.white, Colors.darker_grey)
+    keysString = 'Spc - Play this map | R - Regenerate | Esc - Quit'
+    keys = Elements.Label(1,1, keysString)\
+      .setDefaultForeground(Colors.gold)
+    keys.bgOpacity = 0
+    keyFrame.addElement(keys)
+    
+
   def setupInputs(self):
 
     # Inputs. =================================================================================
@@ -129,12 +147,7 @@ class GenerateState(GameState):
 
       self.spawnShroom()
       if self.validMap():
-        self.mapElement = Elements.Map(0, 0, config.ui['uiWidth'], config.ui['uiHeight'], self.map)
-        self.view.addElement(self.mapElement)
-        self.mapElement.center(self.focusX, self.focusY)
-
-        self.mapElement.setDirectionalInputHandler(self.moveMap)
-        self.setFocus(self.mapElement)
+        self.setupMapView()
         self.removeHandler('gen')
 
         return True

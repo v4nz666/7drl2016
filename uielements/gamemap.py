@@ -66,7 +66,7 @@ class GameMap(Map):
           if self.map.shroom.active and self.map.shroom.inNetwork(mapX, mapY):
             # print "%d, %d : %d, %d" % (onScreenX, onScreenY, mapX, mapY)
             libtcod.console_set_char_background(
-              self.console, onScreenX, onScreenY, Colors.chartreuse, flag=libtcod.BKGND_ADDALPHA(0.1))
+              self.console, onScreenX, onScreenY, Colors.crimson, flag=libtcod.BKGND_ADDALPHA(0.4))
     self.setDirty(False)
 
   def cellToView(self, c, x, y):

@@ -35,9 +35,11 @@ class Enemy(Entity):
           if self.map.distance(self.x, self.y, n.x, n.y) < d:
             closest = index
           index += 1
-        closestNode = net.nodes[closest]
-        self.targetCoord = (closestNode.x, closestNode.y)
-        break
+        if closest in net.nodes:
+          closestNode = net.nodes[closest]
+          self.targetCoord = (closestNode.x, closestNode.y)
+          break
+
       elif t == entities.Player:
         self.targetCoord = self.map.getPlayerCoords()
         break
@@ -50,7 +52,9 @@ class Enemy(Entity):
     self.computePath()
 
   def computePath(self):
-    libtcod.path_compute(self.path, self.x, self.y, self.targetCoord[0], self.targetCoord[1])
+    x, y = self.targetCoord
+    if x and y:
+      libtcod.path_compute(self.path, self.x, self.y, self.targetCoord[0], self.targetCoord[1])
 
 
   def takeTurn(self):
@@ -58,6 +62,10 @@ class Enemy(Entity):
     ### Attack if we can
     # In range, we can attack whether we have a path or not.
     tx, ty = self.targetCoord[0], self.targetCoord[1]
+    if not (tx and ty):
+      self.updateTarget()
+      return
+
     dist = self.map.distance(self.x, self.y, tx, ty)
     if int(dist) <= self.range:
       if self.readyToAttack():

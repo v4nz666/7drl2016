@@ -26,6 +26,10 @@ class PlayState(GameState):
     self.waves = []
     self.mana = 0
 
+  def beforeLoad(self):
+    self.messageList.messages = []
+    self.messageList.setDirty()
+
   def setupHandlers(self):
 
     self.addHandler('hudRefresh', 1, self.hudRefresh)
@@ -123,10 +127,70 @@ class PlayState(GameState):
     self.messageList.bgOpacity = 0
     self.view.addElement(self.messageList)
 
+    # Help
+    mapW = cfg.ui['uiWidth'] - cfg.ui['msgW']
+    helpW = mapW / 2
+    helpX = (mapW - helpW)/ 2
+    helpY = cfg.ui['uiHeight'] / 4
 
+    helpH = (cfg.ui['uiHeight'] - helpY) / 2
+    self.helpDialog = Elements.Frame(helpX, helpY, helpW, helpH, "Help!")
+
+    self.helpText = Elements.List(1,1, self.helpDialog.width - 2, self.helpDialog.height - 2)
+    self.helpText.setItems([
+      "   Movement         Ranged Attack ",
+      "    WASD             Tab - Toggle ",
+      "    NUMPAD      Movement - Aim    ",
+      "    VI               Spc - Fire   ",
+      "Drop spores with Space to increase",
+      "the size of your  mycelial network",
+      "                                  ",
+      "Your strength increases  with  the",
+      "number of nodes  in  the  network ",
+      "                                  ",
+      "The size of the network determines",
+      "the rate of mana collection       ",
+      "                                  ",
+      "Attack with the magic you've  been",
+      "given or get up close and personal",
+      "                                  ",
+      "Fend off all the waves to win     ",
+      "                                  ",
+      "You  lose  if  you  or the Magical",
+      "Mushroom are killed               "
+    ])
+    self.helpDialog.addElement(self.helpText)
+    self.mapElement.addElement(self.helpDialog).hide()
+
+  def toggleHelp(self):
+    if self.helpDialog.visible:
+      self.helpDialog.hide()
+      self.mapElement.setDirty()
+      self.setFocus(self.mapElement)
+    else:
+      self.helpDialog.show()
+      self.setFocus(self.helpDialog)
 
   def setupInputs(self):
     # Inputs. =================================================================================
+
+    self.view.setInputs({
+      'slash': {
+        'key' : None,
+        'ch': '/',
+        'fn': self.toggleHelp
+      },
+      '?': {
+        'key' : None,
+        'ch': '?',
+        'fn': self.toggleHelp
+      },
+      'hideHelp' : {
+        'key' : Keys.Escape,
+        'ch'  : None,
+        'fn'  : self.toggleHelp
+      }
+    })
 
     self.mapElement.setInputs({
       'use': {

@@ -23,23 +23,21 @@ class SplashState(GameState):
     title = Elements.Label(titleX, titleY, titleString)\
       .setDefaultForeground(Colors.dark_crimson)
     self.view.addElement(title)
-
-    # ### Ascii mapping test
-    # con = self.view.console
-    # for j in range(16):
-    #   y = j * 2
-    #   for i in range(16):
-    #     x = (i*6)
-    #     h = i + (j * 16)
-    #
-    #     print h
-    #     libtcod.console_print(con,x, y, "%d:".ljust(4) % h)
-    #     libtcod.console_put_char(con, x + 4, y, h)
-    # libtcod.console_blit(con,0, 0, self.view.width, self.view.height, 0, 0, 0)
-    # libtcod.console_flush()
-    # libtcod.console_wait_for_keypress(True)
-
-
+    
+    creditString = 'Jeff Ripley - 7DRL 2016'
+    creditX = (config.ui['uiWidth'] - len(creditString)) / 2
+    creditY = config.ui['uiHeight'] / 2 - 2
+    credit = Elements.Label(creditX, creditY, creditString)\
+      .setDefaultForeground(Colors.dark_grey)
+    self.view.addElement(credit)
+    
+    pressKeyString = 'Press any key'
+    pressKeyX = (config.ui['uiWidth'] - len(pressKeyString)) / 2
+    pressKeyY = config.ui['uiHeight'] / 2
+    pressKey = Elements.Label(pressKeyX, pressKeyY, pressKeyString)\
+      .setDefaultForeground(Colors.darker_grey)
+    self.view.addElement(pressKey)
+    
 
 
   def setupInputs(self):
