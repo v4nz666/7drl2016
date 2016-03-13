@@ -97,7 +97,7 @@ class PlayState(GameState):
     self.view.addElement(self.invFrame)
 
     # Network
-    self.netFrame = Elements.Frame(cfg.ui['netX'], cfg.ui['netY'], cfg.ui['netW'], cfg.ui['netH'], "net")
+    self.netFrame = Elements.Frame(cfg.ui['netX'], cfg.ui['netY'], cfg.ui['netW'], cfg.ui['netH'], "Mycelial Network")
     self.netFrame.setDefaultForeground(Colors.green)
     self.netFrame.hide()
     
@@ -105,13 +105,17 @@ class PlayState(GameState):
     self.netManaVal = Elements.Label(1, 1, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
     self.netManaVal.bgOpacity = 0
     
-    self.netSizeLabel = Elements.Label(1, 2, "Size: ").setDefaultForeground(Colors.dark_magenta)
+    self.netSizeLabel = Elements.Label(1, 2, "Net Size: ").setDefaultForeground(Colors.dark_magenta)
     self.netSizeVal = Elements.Label(1, 2, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
     self.netSizeVal.bgOpacity = 0
     
-    self.netRateLabel = Elements.Label(1, 3, "Rate: ").setDefaultForeground(Colors.dark_magenta)
+    self.netRateLabel = Elements.Label(1, 3, "Mana Rate: ").setDefaultForeground(Colors.dark_magenta)
     self.netRateVal = Elements.Label(1, 3, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
     self.netRateVal.bgOpacity = 0
+    
+    self.netNodesLabel = Elements.Label(1, 4, "# Nodes: ").setDefaultForeground(Colors.dark_magenta)
+    self.netNodesVal = Elements.Label(1, 4, "".rjust(cfg.ui['netW']-2)).setDefaultForeground(Colors.magenta)
+    self.netNodesVal.bgOpacity = 0
     
     self.netFrame.addElement(self.netManaLabel)
     self.netFrame.addElement(self.netManaVal)
@@ -119,8 +123,28 @@ class PlayState(GameState):
     self.netFrame.addElement(self.netSizeVal)
     self.netFrame.addElement(self.netRateLabel)
     self.netFrame.addElement(self.netRateVal)
+    self.netFrame.addElement(self.netNodesLabel)
+    self.netFrame.addElement(self.netNodesVal)
 
     self.view.addElement(self.netFrame)
+    
+    # Health
+    self.healthFrame = Elements.Frame(cfg.ui['healthX'], cfg.ui['healthY'], cfg.ui['healthW'], cfg.ui['healthH'], "health")
+    self.healthFrame.setDefaultForeground(Colors.gold)
+    self.healthFrame.hide()
+    
+    self.healthLabel = Elements.Label(1, 1, "You: ").setDefaultForeground(Colors.silver)
+    self.healthVal = Elements.Label(1, 1, "".rjust(cfg.ui['healthW']-2)).setDefaultForeground(Colors.gold)
+    self.healthVal.bgOpacity = 0
+    self.shroomHealthLabel = Elements.Label(1, 2, "Shroom: ").setDefaultForeground(Colors.silver)
+    self.shroomHealthVal = Elements.Label(1, 2, "".rjust(cfg.ui['healthW']-2)).setDefaultForeground(Colors.gold)
+    self.shroomHealthVal.bgOpacity = 0
+
+    self.healthFrame.addElement(self.healthLabel)
+    self.healthFrame.addElement(self.healthVal)
+    self.healthFrame.addElement(self.shroomHealthLabel)
+    self.healthFrame.addElement(self.shroomHealthVal)
+    self.view.addElement(self.healthFrame)
 
 
     # Messages
@@ -459,6 +483,7 @@ class PlayState(GameState):
       self.waveEnemyLabel.show()
       self.invFrame.show()
       self.netFrame.show()
+      self.healthFrame.show()
     self.spawnItems(self.waves[0].items)
 
   def spawnEnemies(self, waveEnemies):
@@ -531,11 +556,15 @@ class PlayState(GameState):
       self.waveEnemyLabel.setLabel("Enemies: %s" % len(self.waves[0].enemies))
 
 
+    self.healthVal.setLabel(("%d" % (int(self.player.hp))).rjust(cfg.ui['netW']-2))
+    self.shroomHealthVal.setLabel(str(int(self.map.shroom.hp)).rjust(cfg.ui['netW']-2))
+
   def updateNetFrame(self):
     maxMana = int(self.map.shroom.net.maxMana)
     self.netManaVal.setLabel(("%d / %d" % (int(self.mana), maxMana)).rjust(cfg.ui['netW']-2))
     self.netSizeVal.setLabel(str(self.map.shroom.netSize).rjust(cfg.ui['netW']-2))
     self.netRateVal.setLabel(str(round(self.map.shroom.netSize * cfg.manaRate, 2)).rjust(cfg.ui['netW']-2))
+    self.netNodesVal.setLabel(str(len(self.map.shroom.net.nodes)).rjust(cfg.ui['netW']-2))
     self.netFrame.setDirty()
 
 

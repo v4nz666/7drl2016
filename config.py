@@ -17,19 +17,26 @@ ui = {
   'uiHeight': 60,
 
   'msgW': 24,
-  'msgH': 16,
+  'msgH': 40,
   'msgX': 96 - 24,
-  'msgY': 60 - 16,
+  'msgY': 18,
 
   'invX': 96 - 24,
   'invY': 4,
   'invW': 24,
-  'invH': 10,
+  'invH': 3,
 
   'netX': 96 - 24,
-  'netY': 14,
+  'netY': 7,
   'netW': 24,
-  'netH': 16
+  'netH': 7,
+  
+  'healthX': 96 - 24,
+  'healthY': 14,
+  'healthW': 24,
+  'healthH': 4,
+
+
 }
 
 world = {
