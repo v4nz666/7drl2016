@@ -1,6 +1,5 @@
 from attack import Attack
 
-
 class Entity(object):
   def __init__(self, name, ch, fg, opts = {}):
     self.name = name
@@ -50,7 +49,10 @@ class Entity(object):
         x, y = t
       else:
         x, y = t.x, t.y
-      a = Attack(self.map, self, x, y, self.damage, self.radius)
+      damage = self.techAdjust(self.damage, self.map.shroom.net.nodeCount)
+      radius = self.techAdjust(self.radius, self.map.shroom.net.nodeCount)
+      
+      a = Attack(self.map, self, x, y, damage, radius)
       self.map.addAttack(a)
 
 
@@ -123,3 +125,31 @@ class Entity(object):
       else:
         src.moveCost -= 1
         return False
+
+#### These do not belong here :(
+  def getTechLevel(self, c):
+    tech = [
+      {
+        'count': 0,
+        'mul': 1
+      },{
+        'count': 3,
+        'mul': 1.25
+      },{
+        'count': 7,
+        'mul': 1.5
+      },{
+        'count': 10,
+        'mul': 2.25
+      }
+    ]
+    level = None
+    for techLevel in tech:
+      if c >= techLevel['count']:
+        level = techLevel
+    return level
+
+  def techAdjust(self, val, nodeCount):
+    tech = self.getTechLevel(nodeCount)
+    val = int(val * tech['mul'])
+    return val

@@ -64,10 +64,11 @@ class Enemy(Entity):
       if self.readyToAttack():
         target = self.map.getCell(tx, ty).entity
         if target:
-          self.attack(target, True)
-
-        pass
-      return True
+          for tType in self.targetPrio:
+            if isinstance(target, tType):
+              self.attack(target, True)
+              return
+        self.updateTarget()
 
     ### Try to move
     pathSize = libtcod.path_size(self.path)

@@ -213,6 +213,7 @@ class PlayState(GameState):
     if self.map.shroom.inNetwork(self.focusX, self.focusY):
       if self.player.readyToAttack():
         if self.testMana(self.player.attackCost):
+
           self.player.attack((self.focusX, self.focusY))
         else:
           self.messageList.message("Not enough mana!")
@@ -578,7 +579,6 @@ class Wave():
         10, #timer
         [    # items
              items.spore,
-             items.spore
         ],
         [
           Enemy(*nodeHunter),
@@ -592,8 +592,6 @@ class Wave():
         [    # items
              items.spore,
              items.spore,
-             items.spore,
-             items.spore
         ],
         [
           Enemy(*nodeHunter),
@@ -616,11 +614,8 @@ class Wave():
              items.spore,
              items.spore,
              items.spore,
-             items.spore,
-             items.spore,
-             items.spore
         ],
-        [
+       [
           Enemy(*nodeHunter),
           Enemy(*nodeHunter),
           Enemy(*nodeHunter),
@@ -648,8 +643,6 @@ class Wave():
              items.spore,
              items.spore,
              items.spore,
-             items.spore,
-             items.spore
         ],
         [
           Enemy(*nodeHunter),

@@ -54,6 +54,10 @@ class SporeNetwork():
             break
 
   @property
+  def nodeCount(self):
+    return len(self.nodes)
+
+  @property
   def size(self):
     return self.field.count(1)
 
