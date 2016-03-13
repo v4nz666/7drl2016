@@ -50,6 +50,7 @@ class SporeNetwork():
         for node in nodes:
           if self.withinRadius(x, y, node):
             self.field[x + y * w] = 1
+            self.map.getCell(x, y).discover()
             break
 
   @property
