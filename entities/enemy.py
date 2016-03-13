@@ -14,7 +14,6 @@ class Enemy(Entity):
     self.map = None
 
   def spawn(self, map, x, y, hp):
-    print "Enemy spawned at", x, y
     if super(Enemy, self).spawn(map, x, y, hp):
       self.updateTarget()
 
@@ -76,16 +75,13 @@ class Enemy(Entity):
       (newX, newY) = libtcod.path_walk(self.path, False)
 
       if not (newX and newY):
-        # print "failed to move, recalculating"
         self.computePath()
         return False
       dx = newX - self.x
       dy = newY - self.y
       if self.tryMove(dx,dy):
-        # print "moved to ", self.x, self.y
         return True
       else :
-        # print "failed to move, recalculating"
         self.computePath()
     return False
 

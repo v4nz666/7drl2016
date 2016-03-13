@@ -18,7 +18,6 @@ class Entity(object):
     self.cooldownTimer -= 1
 
   def spawn(self, map, x, y, hp):
-    print "spawning", self.name, x, y
     self.map = map
     self.x = x
     self.y = y

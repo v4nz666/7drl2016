@@ -213,7 +213,6 @@ class PlayState(GameState):
     if self.map.shroom.inNetwork(self.focusX, self.focusY):
       if self.player.readyToAttack():
         if self.testMana(self.player.attackCost):
-
           self.player.attack((self.focusX, self.focusY))
         else:
           self.messageList.message("Not enough mana!")
@@ -334,6 +333,7 @@ class PlayState(GameState):
         #ignore player-node interactions
         return
       else:
+        self.player.attack(target, True)
         return
     #otherwise, just pass through to entityAttack
     self.entityAttack(src, target)
@@ -403,6 +403,7 @@ class PlayState(GameState):
         if s:
           enemy.spawn(self.map, x, y, enemy.hp)
           enemies.append(enemy)
+          self.messageList.message("%s spawned" % enemy.name)
           libtcod.path_delete(path)
           break
         else:
@@ -487,8 +488,7 @@ class PlayState(GameState):
       self.turnHandlers.remove(self.nodeUpdate)
       self.turnHandlers.remove(self.waveUpdate)
       # WIN !
-      print "Woohoo!"
-  #     display endgame View()
+      #  display endgame View()
       self.manager.setNextState('generate')
 
 
@@ -509,6 +509,7 @@ class PlayState(GameState):
 
 
   def purgeEnemies(self):
+    print "purging"
     purge = []
     for e in self.waves[0].enemies:
       if e.isDead:
