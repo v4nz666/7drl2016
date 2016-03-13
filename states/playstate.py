@@ -419,7 +419,18 @@ class PlayState(GameState):
       t = n.findTarget()
       if t and n.readyToAttack():
         print "Attacking!"
-        n.attack(t)
+        if self.testMana(n.attackCost):
+          n.attack(t)
+        else:
+          self.messageList.message("Not enough mana to attack")
+
+  def testMana(self, cost):
+    if self.mana >= cost:
+      self.mana -= cost
+      self.updateNetFrame()
+      return True
+    else:
+      return False
 
 
   def buildSiteUpdate(self):
@@ -455,13 +466,35 @@ class Wave():
           Enemy(*enemy),
           Enemy(*enemy),
           Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
           Enemy(*enemy)
         ]  # enemies
       ],[
         [    # items
           items.spore,
+          items.spore,
+          items.spore,
           items.spore
         ],
-        []  # enemies
+        [
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy),
+          Enemy(*enemy)
+        ]  # enemies
       ]
     ]
