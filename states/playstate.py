@@ -363,7 +363,7 @@ class PlayState(GameState):
   def updateInvFrame(self):
     item = self.player.item
     if item:
-      i = item.name
+      i = item.name + " - Space to use"
       self.invItemChar.setDirty()
 
     else:
