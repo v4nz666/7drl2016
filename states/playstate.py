@@ -22,6 +22,7 @@ from RoguePy.libtcod import libtcod
 class PlayState(GameState):
 
   def init(self):
+    self.wave = 0
     self.waves = []
     self.mana = 0
 
@@ -71,6 +72,12 @@ class PlayState(GameState):
     self.waveTimerLabel.setDefaultForeground(Colors.dark_fuchsia)
     self.waveTimerLabel.hide()
     self.view.addElement(self.waveTimerLabel)
+
+    self.waveCountLabel = Elements.Label(cfg.ui['msgX'], 0, "Wave number: ".ljust(cfg.ui['msgW']))
+    self.waveCountLabel.bgOpacity = 0
+    self.waveCountLabel.setDefaultForeground(Colors.fuchsia)
+    self.waveCountLabel.hide()
+    self.view.addElement(self.waveCountLabel)
 
     # Inventory
     self.invFrame = Elements.Frame(cfg.ui['invX'], cfg.ui['invY'], cfg.ui['invW'], cfg.ui['invH'], "Carrying")
@@ -472,6 +479,7 @@ class PlayState(GameState):
 
   # Spawn enemies, and deliver the items for the next wave
   def initNextWave(self, first=False):
+    self.wave += 1
     if not first:
       self.waves.pop(0)
       if not len(self.waves):
@@ -480,6 +488,7 @@ class PlayState(GameState):
     else:
       self.addHandler('enemyPaths', 120, self.repathEnemies)
       self.waveTimerLabel.show()
+      self.waveCountLabel.show()
       self.waveEnemyLabel.show()
       self.invFrame.show()
       self.netFrame.show()
@@ -552,6 +561,7 @@ class PlayState(GameState):
     self.fps.setLabel("FPS: %r" % (libtcod.sys_get_fps()))
     
     if len(self.waves):
+      self.waveCountLabel.setLabel("Wave number: %s" % self.wave)
       self.waveTimerLabel.setLabel("Next Wave: %s" % self.waves[0].timer)
       self.waveEnemyLabel.setLabel("Enemies: %s" % len(self.waves[0].enemies))
 
