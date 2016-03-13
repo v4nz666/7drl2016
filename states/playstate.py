@@ -15,20 +15,21 @@ import sys
 
 import config as cfg
 from RoguePy.Input import Keys
-from RoguePy.UI import Elements
+from RoguePy.UI import Elements, View
 from RoguePy.UI import Colors
 from RoguePy.State import GameState
 from RoguePy.libtcod import libtcod
 class PlayState(GameState):
 
   def init(self):
+    self.targeting = False
     self.waves = []
     self.mana = 0
 
   def setupHandlers(self):
 
     self.addHandler('hudRefresh', 1, self.hudRefresh)
-    self.addHandler('attackAnim', 2, self.mapElement.updateAttacks)
+    self.addHandler('attackAnim', 1, self.mapElement.updateAttacks)
     self.addHandler('buildAnim', 1, self.mapElement.updateBuildAnimation)
     self.turnHandlers = [self.buildSiteUpdate]
 
@@ -38,6 +39,16 @@ class PlayState(GameState):
     self.mapElement = uielements.GameMap(0, 0, cfg.ui['msgX'], cfg.ui['uiHeight'], self.map)
     self.view.addElement(self.mapElement)
 
+    #Magix
+    self.magicOverlay = self.view.addElement(Elements.Element(0, 0, cfg.ui['msgX'], cfg.ui['uiHeight']))
+    self.magicOverlay.bgOpacity = 0
+    self.magicOverlay.hide()
+
+    def drawMagicOverlay():
+      con = self.magicOverlay.console
+      onscreenX, onscreenY = self.mapElement.onScreen(self.focusX, self.focusY)
+      libtcod.console_put_char(con, onscreenX, onscreenY, '+')
+    self.magicOverlay.draw = drawMagicOverlay
     # HUD
     self.fps = Elements.Label(1, 1, "FPS: ".ljust(8))\
       .setDefaultForeground(Colors.magenta)
@@ -110,7 +121,18 @@ class PlayState(GameState):
 
   def setupInputs(self):
     # Inputs. =================================================================================
-    self.view.setInputs({
+
+    self.mapElement.setInputs({
+      'use': {
+        'key' : Keys.Space,
+        'ch': None,
+        'fn': self.useItem
+      },
+      'magic': {
+        'key' : Keys.Tab,
+        'ch': None,
+        'fn': self.enableMagic
+      },
       'quit' : {
         'key' : Keys.Escape,
         'ch'  : None,
@@ -118,15 +140,25 @@ class PlayState(GameState):
       }
     })
 
-    self.mapElement.setInputs({
-      'useItem': {
+    self.magicOverlay.setInputs({
+      'escape': {
+        'key' : Keys.Escape,
+        'ch': None,
+        'fn': self.disableMagic
+      },
+      'tab': {
+        'key' : Keys.Tab,
+        'ch': None,
+        'fn': self.disableMagic
+      },
+      'fire!': {
         'key' : Keys.Space,
         'ch': None,
-        'fn': self.useItem
+        'fn': self.fireMagic
       }
-
     })
 
+    self.magicOverlay.setDirectionalInputHandler(self.moveMagic)
     self.mapElement.setDirectionalInputHandler(self.movePlayer)
     self.setFocus(self.mapElement)
 
@@ -153,6 +185,50 @@ class PlayState(GameState):
       if c.item is not None:
         self.map.trigger('item_interact', self.player, c.item)
     self.doTurn()
+
+  def moveMagic(self,dx,dy):
+    if not dx and not dy:
+      self.doTurn()
+      return
+    newX = self.focusX + dx
+    newY = self.focusY + dy
+
+    onscreenX, onscreenY = self.mapElement.onScreen(newX, newY)
+    if not 0 <= onscreenX < self.magicOverlay.width or not 0 <= onscreenY < self.magicOverlay.height:
+      return
+
+    # TODO move this to the "Fire!" method
+    # if self.map.shroom.inNetwork(newX, newY):
+    self.focusX = newX
+    self.focusY = newY
+
+    return
+
+  def fireMagic(self):
+    print "Firing"
+    if self.map.shroom.inNetwork(self.focusX, self.focusY):
+      self.player.attack((self.focusX, self.focusY))
+      self.disableMagic(True)
+    else:
+      self.messageList.message("You have no power, outside the network")
+
+
+  def enableMagic(self):
+    if not self.map.shroom.active:
+      return
+    if not self.map.shroom.inNetwork(self.player.x, self.player.y):
+      self.messageList.message("You feel weak away from the network")
+    print "Enabling magic mode"
+    self.focusX = self.player.x
+    self.focusY = self.player.y
+    self.magicOverlay.show()
+    self.setFocus(self.magicOverlay)
+
+  def disableMagic(self, turn = False):
+    self.magicOverlay.hide()
+    self.setFocus(self.mapElement)
+    if turn:
+      self.doTurn()
 
 
 ##########################
@@ -202,8 +278,8 @@ class PlayState(GameState):
         try:
           if self.map.getCell(_x, _y).passable:
             print "Player: %d, %d" % (_x, _y)
-            player = Player('Sporaculous', '@', Colors.white)
-            player.spawn(self.map, _x, _y, cfg.player['hp'], cfg.player['damage'])
+            player = Player('Sporaculous', '@', Colors.white, cfg.player)
+            player.spawn(self.map, _x, _y, cfg.player['hp'])
             return player
 
         except IndexError:
@@ -347,7 +423,8 @@ class PlayState(GameState):
 
 
   def updateNetFrame(self):
-    self.netManaVal.setLabel(("%0.2f" % self.mana).rjust(cfg.ui['netW']-2))
+    maxMana = int(self.map.shroom.net.maxMana)
+    self.netManaVal.setLabel(("%d / %d" % (int(self.mana), maxMana)).rjust(cfg.ui['netW']-2))
     self.netSizeVal.setLabel(str(self.map.shroom.netSize).rjust(cfg.ui['netW']-2))
     self.netRateVal.setLabel(str(round(self.map.shroom.netSize * cfg.manaRate, 2)).rjust(cfg.ui['netW']-2))
     self.netFrame.setDirty()
@@ -402,8 +479,10 @@ class PlayState(GameState):
     self.hudRefresh()
 
   def collectMana(self):
-    cells = self.map.shroom.netSize
+    net = self.map.shroom.net
+    cells = net.size
     self.mana += round(cells * cfg.manaRate, 2)
+    self.mana = min(net.maxMana, self.mana)
     self.updateNetFrame()
 
   def nodeUpdate(self):
@@ -414,6 +493,7 @@ class PlayState(GameState):
         network.removeNode(n)
         n.die()
         self.mapElement.setDirty()
+        continue
 
       t = n.findTarget()
       if t and n.readyToAttack():

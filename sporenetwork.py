@@ -22,6 +22,13 @@ class SporeNetwork():
       self.nodes.append(node)
       self.calculateField(node)
 
+  @property
+  def maxMana(self):
+    max = 0
+    for n in self.nodes:
+      max += n.attackCost
+    return max
+
   def removeNode(self, node):
     if node in self.nodes:
       self.nodes.remove(node)

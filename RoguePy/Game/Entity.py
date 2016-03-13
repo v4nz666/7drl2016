@@ -44,7 +44,11 @@ class Entity(object):
         print "Entity melee attacking"
         self.map.trigger('entityAttack', self, t)
     else:
-      a = Attack(self.map, self, t, self.damage, self.radius)
+      if type(t) == tuple:
+        x, y = t
+      else:
+        x, y = t.x, t.y
+      a = Attack(self.map, self, x, y, self.damage, self.radius)
       self.map.addAttack(a)
 
 

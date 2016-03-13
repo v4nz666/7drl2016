@@ -24,8 +24,6 @@ class GenerateState(GameState):
 
   def beforeLoad(self):
     self.addHandler('gen', 1, self.generateWorld)
-    self.focusX = self.view.width/2
-    self.focusY = self.view.height/2
 
   def beforeUnload(self):
     self.view.removeElement(self.mapElement)
@@ -217,9 +215,9 @@ class GenerateState(GameState):
       shroom = Shroom('Shroom', chars.shroom, Colors.white, cfg.shroom)
       shroom.spawn(self.map, x, y, cfg.shroom['hp'])
       self.map.shroom = shroom
+      self.focusX, self.focusY = self.map.shroom.x, self.map.shroom.y
     else:
       self.spawnShroom()
-
 
   def setTrees(self, treeMap):
     for y in range(config.world['mapHeight']):

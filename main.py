@@ -10,7 +10,7 @@ import RoguePy
 from RoguePy.Input import Keys
 from RoguePy.UI import Elements
 
-RoguePy.setFps(60)
+RoguePy.setFps(30)
 
 game = Game("Sporaculous", 96, 60, False)
 game.addState(SplashState('splash'))

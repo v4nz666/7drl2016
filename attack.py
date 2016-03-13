@@ -5,15 +5,14 @@ __author__ = 'jripley'
 from RoguePy.libtcod import libtcod
 
 class Attack():
-  def __init__(self, map, src, target, dmg, rad):
+  def __init__(self, map, src, targetX, targetY, dmg, rad):
     self.map = map
 
     self.source = src
     self.x = src.x
     self.y = src.y
-    self.target = target
-    self.targetX = target.x
-    self.targetY = target.y
+    self.targetX = targetX
+    self.targetY = targetY
     self.ch = "."
 
     self.damage = dmg
@@ -41,10 +40,6 @@ class Attack():
     for c in self.map.getCellsInRad(self.x, self.y, self.radius):
       e = c.entity
       if e is not None:
-        self.map.trigger('entity_explosion', self.source, e)
-
-
-
+        self.map.trigger('entityAttack', self.source, e)
     self.explosion = Explosion(self)
-    # self.map.trigger("attack_hit")
-    
+

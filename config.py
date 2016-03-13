@@ -5,7 +5,7 @@ __author__ = 'jripley'
 
 from RoguePy.libtcod import libtcod
 
-manaRate = 0.0025
+manaRate = 0.005
 
 ### Random
 rand = libtcod.random_get_instance()
@@ -42,7 +42,11 @@ world = {
 player = {
   'viewRadius': 16,
   'hp': 100,
-  'damage': 12
+  'damage': 12,
+  'range': 16,
+  'radius': 2,
+  'cooldown': 5,
+  'attackCost': 50
 }
 
 shroom = {
@@ -50,7 +54,7 @@ shroom = {
   'targetPrio': [Enemy],
   'damage': 20,
   'range': 16,
-  'radius': 3,
+  'radius': 2,
   'cooldown': 5,
   'attackCost': 50
 }
@@ -60,7 +64,7 @@ node = {
   'targetPrio': [Enemy],
   'damage': 12,
   'range': 8,
-  'radius': 1,
+  'radius': 0,
   'cooldown': 3,
   'attackCost': 25,
   'item': items.spore
