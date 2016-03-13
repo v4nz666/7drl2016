@@ -6,7 +6,7 @@ __author__ = 'jripley'
 
 class Enemy(Entity):
 
-  def __init__(self, name, ch, clr, target, pathFunc, opts):
+  def __init__(self, name, ch, clr, pathFunc, opts):
     super(Enemy, self).__init__(name, ch, clr, opts)
     self.targetCoord = None
     self.path = None

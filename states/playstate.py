@@ -297,6 +297,7 @@ class PlayState(GameState):
     self.setupView()
 
     self.player = self.spawnPlayer()
+    self.map.setPlayer(self.player)
     self.mapElement.setPlayer(self.player)
     self.mapElement.calculateFovMap()
     self.mapElement.center(self.player.x, self.player.y)
@@ -567,44 +568,107 @@ class Wave():
       [ ### Wave 1
         10, #timer
         [    # items
-          items.spore,
-          items.spore
+             items.spore,
+             items.spore
         ],
         [
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy)
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter)
         ]  # enemies
       ],[ ### Wave 2
         50, #timer
         [    # items
-          items.spore,
-          items.spore,
-          items.spore,
-          items.spore
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore
         ],
         [
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy),
-          Enemy(*enemy)
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+
+          ]  # enemies
+      ],[ ### Wave 3
+        60, #timer
+        [    # items
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore
+        ],
+        [
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+
+        ]  # enemies
+      ],[ ### Wave 4
+        75, #timer
+        [    # items
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore,
+             items.spore
+        ],
+        [
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*nodeHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*shroomHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
+          Enemy(*playerHunter),
         ]  # enemies
       ]
     ]

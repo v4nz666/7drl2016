@@ -64,7 +64,7 @@ node = {
   'targetPrio': [Enemy],
   'damage': 12,
   'range': 8,
-  'radius': 0,
+  'radius': 1,
   'cooldown': 3,
   'attackCost': 25,
   'item': items.spore
